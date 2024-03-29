@@ -121,6 +121,12 @@ const KidTab: React.FC = () => {
     setKeyForRemount(keyForRemount + 1);
   };
 
+  const onUpdateSuccess = () => {
+    setIsEditing(false);
+    setSelectedKid(null);
+    setKeyForRemount(keyForRemount + 1);
+  }
+
   return (
     <>
       {!isEditing && !isCreateModalVisible && (
@@ -149,7 +155,11 @@ const KidTab: React.FC = () => {
         </>
       )}
       {isEditing && (
-        <KidDetail item={selectedKid} onCancel={handleCancelEdit} />
+        <KidDetail
+          item={selectedKid}
+          onCancel={handleCancelEdit}
+          onUpdateSuccess={onUpdateSuccess}
+        />
       )}
       {isCreateModalVisible && (
         <CreateKid

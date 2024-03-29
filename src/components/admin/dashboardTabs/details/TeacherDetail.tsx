@@ -13,12 +13,18 @@ interface TeacherDetailProps {
     classes: any[];
   };
   onCancel: () => void;
+  onUpdateSuccess: () => void;
 }
 
-const TeacherDetail: React.FC<TeacherDetailProps> = ({ item, onCancel }) => {
+const TeacherDetail: React.FC<TeacherDetailProps> = ({
+  item,
+  onCancel,
+  onUpdateSuccess,
+}) => {
   const [classesToAdd, setClassesToAdd] = React.useState<any[]>([]);
   const LoginCtx = useContext(LoginContext);
   const [messageApi, contextHolder] = message.useMessage();
+  const [form] = Form.useForm();
 
   useEffect(() => {
     const fetchClassData = async () => {
@@ -40,18 +46,67 @@ const TeacherDetail: React.FC<TeacherDetailProps> = ({ item, onCancel }) => {
     fetchClassData();
   }, [item]);
 
-  const handleUpdate = (values: any) => {
-    // Add logic for handling update with the updated values
-    console.log("Updated values:", values);
+  const handleUpdate = async () => {
+    try {
+      const values = await form.validateFields();
+      const token = LoginCtx.authToken || localStorage.getItem("authToken");
+      const response = await fetch(
+        BASE_BACKEND_URL + `/teacher/update/${item.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(values),
+        }
+      );
+      const res = await response.json();      
+      if (!res.error) {
+        messageApi.success(res?.message);
+        setTimeout(() => {
+          onUpdateSuccess();
+        }, 3500);
+      } else {
+        messageApi.error(res?.message);
+      }
+    } catch (error) {
+      messageApi.error("Error updating teacher");
+    }
   };
 
-  const handleDelete = () => {
-    // Add logic for handling delete
-    console.log(`Deleting class with ID ${item.id}`);
+  const handleDelete = async () => {
+    try {
+
+      const token = LoginCtx.authToken || localStorage.getItem("authToken");
+      const response = await fetch(
+        BASE_BACKEND_URL + `/teacher/delete/${item.id}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          
+        }
+      );
+      const res = await response.json();
+      if (!res.error) {
+        messageApi.success(res?.message);
+        setTimeout(() => {
+          onUpdateSuccess();
+        }, 3500);
+      } else {
+        messageApi.error(res?.message);
+      }
+    } catch (error) {
+      messageApi.error("Error deleting teacher");
+    }
   };
 
   return (
     <>
+      {contextHolder}
       <Button danger onClick={onCancel}>
         Cancel
       </Button>
@@ -60,6 +115,7 @@ const TeacherDetail: React.FC<TeacherDetailProps> = ({ item, onCancel }) => {
         onFinish={handleUpdate}
         labelCol={{ span: 6 }}
         wrapperCol={{ span: 14 }}
+        form={form}
         style={{
           maxWidth: 700,
           margin: "auto",
@@ -74,7 +130,7 @@ const TeacherDetail: React.FC<TeacherDetailProps> = ({ item, onCancel }) => {
       >
         <Form.Item
           label="Name"
-          name="name"
+          name="fullName"
           rules={[{ required: true, message: "Please enter a name" }]}
         >
           <Input placeholder={`${item.fullName}`} />
@@ -95,7 +151,7 @@ const TeacherDetail: React.FC<TeacherDetailProps> = ({ item, onCancel }) => {
         </Form.Item>
         <Form.Item
           label="Classes"
-          name="classes"
+          name="classIds"
           rules={[
             { required: true, message: "Please select at least 1 class" },
           ]}
@@ -111,7 +167,9 @@ const TeacherDetail: React.FC<TeacherDetailProps> = ({ item, onCancel }) => {
             }
             options={classesToAdd.map((c) => ({
               value: c.id,
-              label: c.name,
+              label: `${c.name} - Giáo Viên: ${
+                c.teacher?.fullName || "Chưa có"
+              } `,
               selected: item.classes.map((c: any) => c.id).includes(c.id),
             }))}
           />

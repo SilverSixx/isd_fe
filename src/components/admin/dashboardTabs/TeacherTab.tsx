@@ -57,7 +57,7 @@ const TeacherTab: React.FC = () => {
       title: "Classes",
       dataIndex: "classes",
       key: "classes",
-      render: (classes: any[]) => classes?.length || 0,
+      render: (classes: any[]) => (c => c.map((c: any) => c.name).join(", "))(classes)
     },
     {
       title: "",
@@ -100,6 +100,12 @@ const TeacherTab: React.FC = () => {
     setKeyForRemount(keyForRemount + 1);
   }
 
+  const onUpdateSuccess = () => {
+    setIsEditing(false);
+    setSelectedTeacher(null);
+    setKeyForRemount(keyForRemount + 1);
+  }
+
   return (
     <>
       {!isEditing && !isCreateModalVisible && (
@@ -128,10 +134,17 @@ const TeacherTab: React.FC = () => {
         </>
       )}
       {isEditing && (
-        <TeacherDetail item={selectedTeacher} onCancel={handleCancelEdit} />
+        <TeacherDetail
+          item={selectedTeacher}
+          onCancel={handleCancelEdit}
+          onUpdateSuccess={onUpdateSuccess}
+        />
       )}
       {isCreateModalVisible && (
-        <CreateTeacher onCancel={handleCreateTeacherCancel} onCreateSuccess={handleCreateSuccess} />
+        <CreateTeacher
+          onCancel={handleCreateTeacherCancel}
+          onCreateSuccess={handleCreateSuccess}
+        />
       )}
     </>
   );

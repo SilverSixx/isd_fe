@@ -14,12 +14,17 @@ interface KidDetailProps {
     parent: any;
   };
   onCancel: () => void;
+  onUpdateSuccess: () => void;
 }
 
-const KidDetail: React.FC<KidDetailProps> = ({ item, onCancel }) => {
+const KidDetail: React.FC<KidDetailProps> = ({
+  item,
+  onCancel,
+  onUpdateSuccess,
+}) => {
   const [classesToAssign, setClassesToAssign] = useState<any[]>([]);
   const [parentsToAssign, setParentsToAssign] = useState<any[]>([]);
-
+  const [form] = Form.useForm();
   const LoginCtx = useContext(LoginContext);
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -48,7 +53,6 @@ const KidDetail: React.FC<KidDetailProps> = ({ item, onCancel }) => {
           classResponse.json(),
           parentResponse.json(),
         ]);
-
         setClassesToAssign(classData.data);
         setParentsToAssign(parentData.data);
       } catch (error) {
@@ -59,18 +63,72 @@ const KidDetail: React.FC<KidDetailProps> = ({ item, onCancel }) => {
     fetchData();
   }, [item]);
 
-  const handleUpdate = (values: any) => {
-    // Add logic for handling update with the updated values
-    console.log("Updated values:", values);
+  const handleUpdate = async () => {
+    try {
+      const values = await form.validateFields();
+      const dob = values.dob.format("YYYY-MM-DD");
+      const kidToUpdate = {
+        ...values,
+        dob,
+      };
+
+      const token = LoginCtx.authToken || localStorage.getItem("authToken");
+      const response = await fetch(
+        BASE_BACKEND_URL + `/kid/update/${item.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(kidToUpdate),
+        }
+      );
+      const res = await response.json();
+      if (!res.error) {
+        messageApi.success(res?.message);
+        setTimeout(() => {
+          onUpdateSuccess();
+        }, 3500);
+      } else {
+        messageApi.error(res?.message);
+      }
+    } catch (error) {
+      messageApi.error("Error updating kid");
+    }
   };
 
-  const handleDelete = () => {
-    // Add logic for handling delete
-    console.log(`Deleting class with ID ${item.id}`);
+  const handleDelete = async () => {
+    try {
+      const token = LoginCtx.authToken || localStorage.getItem("authToken");
+      const response = await fetch(
+        BASE_BACKEND_URL + `/kid/delete/${item.id}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          
+        }
+      );
+      const res = await response.json();
+      if (!res.error) {
+        messageApi.success(res?.message);
+        setTimeout(() => {
+          onUpdateSuccess();
+        }, 3500);
+      } else {
+        messageApi.error(res?.message);
+      }
+    } catch (error) {
+      messageApi.error("Error deleting kid");
+    }
   };
 
   return (
     <>
+      {contextHolder}
       <Button danger onClick={onCancel}>
         Cancel
       </Button>
@@ -78,6 +136,7 @@ const KidDetail: React.FC<KidDetailProps> = ({ item, onCancel }) => {
         onFinish={handleUpdate}
         labelCol={{ span: 6 }}
         wrapperCol={{ span: 14 }}
+        form={form}
         style={{
           maxWidth: 500,
           margin: "auto",
@@ -99,7 +158,7 @@ const KidDetail: React.FC<KidDetailProps> = ({ item, onCancel }) => {
         </Form.Item>
         <Form.Item
           label="Nickname"
-          name="name"
+          name="nickName"
           rules={[{ required: true, message: "Please enter a nickname" }]}
         >
           <Input placeholder={`${item.nickName}`} />
@@ -113,7 +172,7 @@ const KidDetail: React.FC<KidDetailProps> = ({ item, onCancel }) => {
         </Form.Item>
         <Form.Item
           label="Classes"
-          name="classes"
+          name="classId"
           rules={[
             { required: true, message: "Please select at least 1 class" },
           ]}
@@ -140,11 +199,13 @@ const KidDetail: React.FC<KidDetailProps> = ({ item, onCancel }) => {
             showSearch
             defaultValue={item?.parent?.id}
             filterOption={(inputValue, option) =>
-              option?.label.toLowerCase().includes(inputValue.toLowerCase())
+              (option?.label?.toString()?.toLowerCase() || "").includes(
+                inputValue.toLowerCase()
+              )
             }
             options={parentsToAssign.map((p) => ({
               value: p.id,
-              label: p.fullName,
+              label: `${p.fullName} - ${p?.kid?.fullName || "Chưa có thông tin trẻ"}`,
               selected: p.id === item?.parent?.id,
             }))}
           />

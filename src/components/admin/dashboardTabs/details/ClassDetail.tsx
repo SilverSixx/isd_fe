@@ -13,13 +13,15 @@ interface ClassDetailProps {
     kids: any[];
   };
   onCancel: () => void;
+  onUpdateSuccess: () => void;
 }
 
-const ClassDetail: React.FC<ClassDetailProps> = ({ item, onCancel }) => {
+const ClassDetail: React.FC<ClassDetailProps> = ({ item, onCancel, onUpdateSuccess }) => {
   const [teachersToAdd, setTeachersToAdd] = useState<any[]>([]);
   const [kidsToAdd, setKidsToAdd] = useState<any[]>([]);
   const LoginCtx = useContext(LoginContext);
   const [messageApi, contextHolder] = message.useMessage();
+  const [form] = Form.useForm();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -53,12 +55,78 @@ const ClassDetail: React.FC<ClassDetailProps> = ({ item, onCancel }) => {
     fetchData();
   }, [item]);
 
-  const handleUpdate = (values: any) => {};
+  const handleUpdate = async () => {
+    try {
+      const values = await form.validateFields();
+      const token = LoginCtx.authToken || localStorage.getItem("authToken");
 
-  const handleDelete = () => {};
+      const response = await fetch(
+        BASE_BACKEND_URL + `/class/update/${item.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(values),
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        if (!data?.error) {
+          messageApi.success(data?.message);
+          setTimeout(() => {
+            onUpdateSuccess();
+          }, 3500);
+        } else {
+          message.error(data?.message);
+        }
+      } else {
+        message.error("Can not update class.");
+      }
+    } catch (error) {
+      message.error("Error when calling API to backend service.");
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      const token = LoginCtx.authToken || localStorage.getItem("authToken");
+
+      const response = await fetch(
+        BASE_BACKEND_URL + `/class/delete/${item.id}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        if (!data?.error) {
+          messageApi.success(data?.message);
+          setTimeout(() => {
+            onUpdateSuccess();
+          }, 3500);
+        } else {
+          message.error(data?.message);
+        }
+      } else {
+        message.error("Can not delete class.");
+      }
+    } catch (error) {
+      message.error("Error when calling API to backend service.");
+    }
+  };
 
   return (
     <>
+      {contextHolder}
       <Button danger onClick={onCancel}>
         Cancel
       </Button>
@@ -66,6 +134,7 @@ const ClassDetail: React.FC<ClassDetailProps> = ({ item, onCancel }) => {
         onFinish={handleUpdate}
         labelCol={{ span: 6 }}
         wrapperCol={{ span: 14 }}
+        form={form}
         style={{
           maxWidth: 700,
           margin: "auto",

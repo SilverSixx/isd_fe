@@ -61,7 +61,7 @@ const ParentTab: React.FC = () => {
       key: "",
       render: (record: any) => (
         <div style={{ display: "flex", justifyContent: "flex-end" }}>
-          <Button danger size="middle">
+          <Button danger size="middle" onClick={() => handleDelelte(record.id)}>
             Delete
           </Button>
         </div>
@@ -84,6 +84,30 @@ const ParentTab: React.FC = () => {
   const onCreateSuccess = () => {
     setIsCreateModalVisible(false);
     setKeyForRemount(keyForRemount + 1);
+  };
+
+  const handleDelelte = async (id: number) => {
+    try {
+      const token = LoginCtx.authToken || localStorage.getItem("authToken");
+      const response = await fetch(BASE_BACKEND_URL + `/parent/delete/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+      if (response.ok) {
+        message.success(data?.message);
+        setTimeout(() => {
+          setKeyForRemount(keyForRemount + 1);
+        }, 3500);
+      } else {
+        message.error(data?.message);
+      }
+    } catch (error) {
+      message.error("Can not delete parent.");
+    }
   };
 
   return (

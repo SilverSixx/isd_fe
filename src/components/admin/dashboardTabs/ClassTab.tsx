@@ -64,6 +64,12 @@ const ClassTab: React.FC = () => {
     setKeyForRemount(keyForRemount + 1);
   };
 
+  const onUpdateSuccess = () => {
+    setIsEditing(false);
+    setSelectedClass(null);
+    setKeyForRemount(keyForRemount + 1);
+  }
+
   const columns = [
     {
       title: "Name",
@@ -131,7 +137,11 @@ const ClassTab: React.FC = () => {
         </>
       )}
       {isEditing && (
-        <ClassDetail item={selectedClass} onCancel={handleCancelEdit} />
+        <ClassDetail
+          item={selectedClass}
+          onCancel={handleCancelEdit}
+          onUpdateSuccess={onUpdateSuccess}
+        />
       )}
       {isCreateModalVisible && (
         <CreateClass

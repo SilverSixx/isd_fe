@@ -69,14 +69,10 @@ const CreateParent = ({
       title="Create New Parent"
       visible={true}
       onCancel={onCancel}
-      footer={[
-        <Button key="submit" type="primary" onClick={handleOnSubmit}>
-          Create
-        </Button>,
-      ]}
+      footer={null}
     >
       {contextHolder}
-      <Form form={form} layout="vertical">
+      <Form form={form} layout="vertical" onFinish={handleOnSubmit}>
         <Form.Item
           label="Name:"
           name="fullName"
@@ -114,6 +110,11 @@ const CreateParent = ({
               }`,
             }))}
           />
+        </Form.Item>
+        <Form.Item>
+          <Button type="primary" htmlType="submit">
+            Create
+          </Button>
         </Form.Item>
       </Form>
     </Modal>
