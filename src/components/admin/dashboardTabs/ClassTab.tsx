@@ -1,97 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { Button, Table } from "antd";
-import ClassDetail from "./details/ClassDetail"; // Import the ClassDetail component
+import React, { useState, useEffect, useContext } from "react";
+import { Button, Table, message } from "antd";
+import ClassDetail from "./details/ClassDetail";
 import CreateClass from "../forms/CreateClass";
+import { LoginContext } from "../../../context/LoginContext";
 
-const classData = [
-  {
-    id: 1,
-    name: "Mầm",
-    grade: 2,
-    teacher: "John Doe",
-    kids: [
-      { id: 1, name: "Alice", nickname: "Cún", age: 5, class: "Math" },
-      { id: 2, name: "Bob", nickname: "Cún", age: 6, class: "English" },
-      { id: 3, name: "Ace", nickname: "Cún", grade: 3, teacher: "Jane Smith" },
-      { id: 4, name: "Lá", nickname: "Cún", grade: 4, teacher: "Peter Jones" },
-      { id: 5, name: "Cành", nickname: "Cún", grade: 5, teacher: "Peter Sims" },
-    ],
-  },
-  {
-    id: 2,
-    name: "Nụ",
-    grade: 3,
-    teacher: "Jane Smith",
-    kids: [
-      { id: 1, name: "Alice", nickname: "Cún", age: 5, class: "Math" },
-      { id: 2, name: "Nụ", nickname: "Cún", grade: 3, teacher: "Jane Smith" },
-      { id: 4, name: "Cành", nickname: "Cún", grade: 5, teacher: "Peter Sims" },
-    ],
-  },
-  {
-    id: 3,
-    name: "Lá",
-    grade: 4,
-    teacher: "Peter Jones",
-    kids: [
-      { id: 1, name: "Alice", nickname: "Cún", age: 5, class: "Math" },
-      { id: 2, name: "Nụ", nickname: "Cún", grade: 3, teacher: "Jane Smith" },
-      { id: 3, name: "Lá", nickname: "Cún", grade: 4, teacher: "Peter Jones" },
-      { id: 4, name: "Cành", nickname: "Cún", grade: 5, teacher: "Peter Sims" },
-    ],
-  },
-  {
-    id: 4,
-    name: "Cành",
-    grade: 5,
-    teacher: "Peter Sims",
-    kids: [
-      { id: 1, name: "Alice", nickname: "Cún", age: 5, class: "Math" },
-      { id: 4, name: "Cành", nickname: "Cún", grade: 5, teacher: "Peter Sims" },
-    ],
-  },
-  {
-    id: 5,
-    name: "Hoa",
-    grade: 2,
-    teacher: "Peter Sims",
-    kids: [
-      { id: 1, name: "Alice", nickname: "Cún", age: 5, class: "Math" },
-      { id: 4, name: "Cành", nickname: "Cún", grade: 5, teacher: "Peter Sims" },
-    ],
-  },
-  {
-    id: 6,
-    name: "Phấn",
-    grade: 2,
-    teacher: "Peter Sims",
-    kids: [
-      { id: 1, name: "Alice", nickname: "Cún", age: 5, class: "Math" },
-      { id: 4, name: "Cành", nickname: "Cún", grade: 5, teacher: "Peter Sims" },
-    ],
-  },
-  {
-    id: 7,
-    name: "Bảng",
-    grade: 2,
-    teacher: "Peter Sims",
-    kids: [
-      { id: 1, name: "Alice", nickname: "Cún", age: 5, class: "Math" },
-      { id: 4, name: "Cành", nickname: "Cún", grade: 5, teacher: "Peter Sims" },
-    ],
-  },
-  {
-    id: 8,
-    name: "Bảng",
-    grade: 2,
-    teacher: "Peter Sims",
-    kids: [
-      { id: 1, name: "Alice", nickname: "Cún", age: 5, class: "Math" },
-      { id: 4, name: "Cành", nickname: "Cún", grade: 5, teacher: "Peter Sims" },
-    ],
-  },
-];
-
+const BASE_BACKEND_URL = "http://localhost:8080/api/v1";
 const ITEMS_PER_PAGE = 7;
 
 const ClassTab: React.FC = () => {
@@ -99,19 +12,30 @@ const ClassTab: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [selectedClass, setSelectedClass] = useState<any>(null);
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
-  const [newClassData, setNewClassData] = useState<any>({
-    name: "",
-    grade: "",
-  });
+  const [classData, setClassData] = useState<any>([]);
+  const [keyForRemount, setKeyForRemount] = useState(0);
 
-  const currentTableData = classData.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
+  const LoginCtx = useContext(LoginContext);
 
   useEffect(() => {
-    setCurrentPage(1); // Reset to first page on state changes
-  }, [isEditing, isCreateModalVisible, newClassData]);
+    const fetchClassData = async () => {
+      try {
+        const token = LoginCtx.authToken || localStorage.getItem("authToken");
+        const response = await fetch(BASE_BACKEND_URL + "/class/all", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const res = await response.json();
+        setClassData(res.data);
+      } catch (error) {
+        console.error("Error fetching class data:", error);
+      }
+    };
+    fetchClassData();
+  }, [keyForRemount]);
 
   const handleChangePage = (page: number) => {
     setCurrentPage(page);
@@ -129,19 +53,15 @@ const ClassTab: React.FC = () => {
 
   const handleCreateNewClass = () => {
     setIsCreateModalVisible(true);
-    setNewClassData({ name: "", grade: "" });
-  };
-
-  const handleCreateClassSubmit = () => {
-    // Implement logic to create a new class object (e.g., API call, update state)
-    const newClassId = classData.length + 1; // Generate temporary ID
-    //const newClass = { ...values, id: newClassId }; // Add ID to new class data
-    // setClassData([...classData, newClass]); // Add new class to existing data
-    setIsCreateModalVisible(false); // Close modal after successful submission
   };
 
   const handleCreateClassCancel = () => {
     setIsCreateModalVisible(false);
+  };
+
+  const onCreateSuccess = () => {
+    setIsCreateModalVisible(false);
+    setKeyForRemount(keyForRemount + 1);
   };
 
   const columns = [
@@ -157,7 +77,7 @@ const ClassTab: React.FC = () => {
     },
     {
       title: "Teacher",
-      dataIndex: "teacher",
+      dataIndex: ["teacher", "fullName"],
       key: "teacher",
     },
     {
@@ -195,29 +115,28 @@ const ClassTab: React.FC = () => {
             Create New Class
           </Button>
           <Table
-            dataSource={currentTableData}
+            dataSource={classData.slice(
+              (currentPage - 1) * ITEMS_PER_PAGE,
+              currentPage * ITEMS_PER_PAGE
+            )}
             columns={columns}
             rowKey="id"
             pagination={{
               onChange: handleChangePage,
               current: currentPage,
               pageSize: ITEMS_PER_PAGE,
-              total: classData.length, // Total number of items for pagination
+              total: classData.length,
             }}
           />
         </>
       )}
       {isEditing && (
-        <ClassDetail
-          item={selectedClass}
-          onCancel={handleCancelEdit}
-          onSubmited={() => {}}
-        />
+        <ClassDetail item={selectedClass} onCancel={handleCancelEdit} />
       )}
       {isCreateModalVisible && (
         <CreateClass
           onCancel={handleCreateClassCancel}
-          onSubmit={handleCreateClassSubmit}
+          onCreateSuccess={onCreateSuccess}
         />
       )}
     </>

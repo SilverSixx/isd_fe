@@ -1,10 +1,11 @@
 import React from "react";
-import { TeamOutlined, HomeOutlined } from "@ant-design/icons";
+import { TeamOutlined, HomeOutlined, LogoutOutlined } from "@ant-design/icons";
 import type { MenuProps } from "antd";
-import { Layout, Menu, theme } from "antd";
+import { Layout, Menu, theme, Button } from "antd";
 import ClassTab from "../components/admin/dashboardTabs/ClassTab";
 import TeacherTab from "../components/admin/dashboardTabs/TeacherTab";
 import KidTab from "../components/admin/dashboardTabs/KidTab";
+import ParentTab from "../components/admin/dashboardTabs/ParentTab";
 import SharedFooter from "../components/share/SharedFooter";
 
 const { Header, Content, Footer, Sider } = Layout;
@@ -13,6 +14,7 @@ const items: MenuProps["items"] = [
   { key: "1", icon: <HomeOutlined />, label: "Classes" },
   { key: "2", icon: <TeamOutlined />, label: "Teachers" },
   { key: "3", icon: <TeamOutlined />, label: "Kids" },
+  { key: "4", icon: <TeamOutlined />, label: "Parents" },
 ];
 
 const AdminDashboard: React.FC = () => {
@@ -36,6 +38,8 @@ const AdminDashboard: React.FC = () => {
           left: 0,
           top: 0,
           bottom: 0,
+          display: "flex",
+          flexDirection: "column",
         }}
       >
         <div className="demo-logo-vertical" />
@@ -47,6 +51,15 @@ const AdminDashboard: React.FC = () => {
           items={items}
           onSelect={({ key }) => handleMenuClick(key)}
         />
+
+        <Button
+          type="primary"
+          icon={<LogoutOutlined />}
+          onClick={() => {}}
+          style={{ marginLeft: 30, marginTop: 530 }}
+        >
+          Logout
+        </Button>
       </Sider>
       <Layout style={{ marginLeft: 190 }}>
         <Header
@@ -71,8 +84,10 @@ const AdminDashboard: React.FC = () => {
           {activeTab === "2" && <TeacherTab />}
 
           {activeTab === "3" && <KidTab />}
+
+          {activeTab === "4" && <ParentTab />}
         </Content>
-        <SharedFooter place={"dashboard"} />
+        <SharedFooter place="admin" />
       </Layout>
     </Layout>
   );

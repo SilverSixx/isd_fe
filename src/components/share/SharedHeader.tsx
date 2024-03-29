@@ -1,68 +1,77 @@
 import React from "react";
-import { Layout, Menu, Button } from "antd";
+import { Layout, Button } from "antd";
 import { TeamOutlined, HomeOutlined, LogoutOutlined } from "@ant-design/icons";
-import type { MenuProps } from "antd";
 import { Link } from "react-router-dom";
 
 interface SharedHeaderProps {
   place: "landingPage" | "classPage";
 }
 
-const items: MenuProps["items"] = [
+const items = [
   {
     key: "1",
     icon: <HomeOutlined />,
-    label: <Link to="/">Home</Link>,
+    label: (
+      <Link to="/home" style={{ color: "white", fontWeight: "bold" }}>
+        Nhà
+      </Link>
+    ),
   },
   {
     key: "2",
     icon: <TeamOutlined />,
-    label: <Link to="/classes">Classes</Link>,
+    label: (
+      <Link to="/classes" style={{ color: "white", fontWeight: "bold" }}>
+        Danh sách lớp học
+      </Link>
+    ),
   },
 ];
 
 const { Header } = Layout;
 
 const SharedHeader: React.FC<SharedHeaderProps> = ({ place }) => {
-  const selectedKey = place === "landingPage" ? "1" : "2";
-
   return (
     <Header
       style={{
-        backgroundColor: "rgba(0, 0, 0, 0.4)",
         display: "flex",
         alignItems: "center",
         position: "fixed",
         zIndex: 1,
         justifyContent: "space-between",
         width: "100%",
+        background: "transparent",
       }}
     >
-      <div
-        style={{
-          color: "white",
-          paddingRight: 50,
-        }}
-      >
-        Logo here
+      <div style={{ display: "flex" }}>
+        <div style={{ color: "white", paddingRight: 50, fontWeight: "bold" }}>
+          Logo here
+        </div>
+        <nav style={{ display: "flex", gap: "20px" }}>
+          {items.map((item) => (
+            <Link
+              key={item.key}
+              to={item.label.props.to}
+              style={{ color: "white", fontSize: 18 }}
+            >
+              {item.icon} {item.label}
+            </Link>
+          ))}
+        </nav>
       </div>
 
-      <Menu
-        mode="horizontal"
-        defaultSelectedKeys={[selectedKey]}
-        items={items}
+      <Button
+        danger
+        size="middle"
         style={{
           background: "transparent",
-          minWidth: 300,
-          border: "none",
-          fontSize: "1.1rem",
+          color: "white",
+          borderColor: "white",
+          fontWeight: "bold",
         }}
-        theme="dark"
-      />
-
-      <Button type="primary">
+      >
         <LogoutOutlined />
-        Logout
+        Đăng xuất
       </Button>
     </Header>
   );

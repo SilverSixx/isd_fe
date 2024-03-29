@@ -176,7 +176,7 @@ const ClassDetailPage: React.FC = () => {
           </Card>
         )}
       </Content>
-      <SharedFooter place="classPage" />
+      <SharedFooter place=""/>
     </Layout>
   );
 };

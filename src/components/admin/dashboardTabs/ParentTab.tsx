@@ -1,27 +1,25 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Button, Table, message } from "antd";
-import TeacherDetail from "./details/TeacherDetail";
-import CreateTeacher from "../forms/CreateTeacher";
 import { LoginContext } from "../../../context/LoginContext";
+import CreateParent from "../forms/CreateParent";
 
 const BASE_BACKEND_URL = "http://localhost:8080/api/v1";
 const ITEMS_PER_PAGE = 7;
 
-const TeacherTab: React.FC = () => {
+const ParentTab: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [teacherData, setTeacherData] = useState<any>([]);
-  const [isEditing, setIsEditing] = useState(false);
-  const [selectedTeacher, setSelectedTeacher] = useState<any>(null);
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
+  const [parentData, setParentData] = useState<any>([]);
   const [keyForRemount, setKeyForRemount] = useState(0);
 
   const LoginCtx = useContext(LoginContext);
+  const [messageApi, contextHolder] = message.useMessage();
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchParentData = async () => {
       try {
         const token = LoginCtx.authToken || localStorage.getItem("authToken");
-        const response = await fetch(BASE_BACKEND_URL + "/teacher/all", {
+        const response = await fetch(BASE_BACKEND_URL + "/parent/all", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -29,22 +27,17 @@ const TeacherTab: React.FC = () => {
           },
         });
         const res = await response.json();
-        setTeacherData(res.data);
+        setParentData(res.data);
       } catch (error) {
-        console.error("Error fetching teacher data:", error);
+        console.error("Error fetching parent data:", error);
       }
     };
-
-    fetchData();
+    fetchParentData();
   }, [keyForRemount]);
-
-  const handleChangePage = (page: number) => {
-    setCurrentPage(page);
-  };
 
   const columns = [
     {
-      title: "Full Name",
+      title: "Name",
       dataIndex: "fullName",
       key: "name",
     },
@@ -54,65 +47,59 @@ const TeacherTab: React.FC = () => {
       key: "username",
     },
     {
-      title: "Classes",
-      dataIndex: "classes",
-      key: "classes",
-      render: (classes: any[]) => classes?.length || 0,
+      title: "Kid Name",
+      dataIndex: ["kid", "fullName"],
+      key: "kidName",
+    },
+    {
+      title: "Kid Nickname",
+      dataIndex: ["kid", "nickName"],
+      key: "kidNickname",
     },
     {
       title: "",
       key: "",
       render: (record: any) => (
         <div style={{ display: "flex", justifyContent: "flex-end" }}>
-          <Button
-            type="primary"
-            size="middle"
-            style={{ marginRight: 10 }}
-            onClick={() => handleEditClick(record)}
-          >
-            Edit
+          <Button danger size="middle">
+            Delete
           </Button>
         </div>
       ),
     },
   ];
 
-  const handleEditClick = (record: any) => {
-    setIsEditing(true);
-    setSelectedTeacher(record);
+  const handleChangePage = (page: number) => {
+    setCurrentPage(page);
   };
 
-  const handleCancelEdit = () => {
-    setIsEditing(false);
-    setSelectedTeacher(null);
-  };
-
-  const handleCreateNewTeacher = () => {
+  const handleCreateNew = () => {
     setIsCreateModalVisible(true);
   };
 
-  const handleCreateTeacherCancel = () => {
+  const handleCreateParentCancel = () => {
     setIsCreateModalVisible(false);
   };
 
-  const handleCreateSuccess = () => {
+  const onCreateSuccess = () => {
     setIsCreateModalVisible(false);
     setKeyForRemount(keyForRemount + 1);
-  }
+  };
 
   return (
     <>
-      {!isEditing && !isCreateModalVisible && (
+      {contextHolder}
+      {!isCreateModalVisible ? (
         <>
           <Button
             type="primary"
-            onClick={handleCreateNewTeacher}
+            onClick={handleCreateNew}
             style={{ marginBottom: "10px" }}
           >
-            Create New Teacher
+            Create New Parent
           </Button>
           <Table
-            dataSource={teacherData.slice(
+            dataSource={parentData.slice(
               (currentPage - 1) * ITEMS_PER_PAGE,
               currentPage * ITEMS_PER_PAGE
             )}
@@ -122,19 +109,18 @@ const TeacherTab: React.FC = () => {
               onChange: handleChangePage,
               current: currentPage,
               pageSize: ITEMS_PER_PAGE,
-              total: teacherData.length,
+              total: parentData.length,
             }}
           />
         </>
-      )}
-      {isEditing && (
-        <TeacherDetail item={selectedTeacher} onCancel={handleCancelEdit} />
-      )}
-      {isCreateModalVisible && (
-        <CreateTeacher onCancel={handleCreateTeacherCancel} onCreateSuccess={handleCreateSuccess} />
+      ) : (
+        <CreateParent
+          onCancel={handleCreateParentCancel}
+          onCreateSuccess={onCreateSuccess}
+        />
       )}
     </>
   );
 };
 
-export default TeacherTab;
+export default ParentTab;

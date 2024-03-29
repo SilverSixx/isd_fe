@@ -7,26 +7,22 @@ interface SharedFooterProps {
 }
 
 const SharedFooter: React.FC<SharedFooterProps> = ({ place }) => {
-  if (place === "landingPage") {
-    return (
-      <Footer
-        style={{
-          textAlign: "center",
-          position: "fixed",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          background: "transparent",
-        }}
-      >
-        Ant Design ©{new Date().getFullYear()} Created by Ant UED
-      </Footer>
-    );
+  let leftMargin = 0;
+  if (place === "admin") {
+    leftMargin = 190;
   }
-
   return (
-    <Footer style={{ textAlign: "center" }}>
-      Ant Design ©{new Date().getFullYear()} Created by Ant UED
+    <Footer
+      style={{
+        textAlign: "center",
+        position: "fixed",
+        bottom: 0,
+        left: leftMargin,
+        right: 0,
+        background: "transparent",
+      }}
+    >
+      Mam Non Binh Minh ©{new Date().getFullYear()} Created by dat.pl
     </Footer>
   );
 };

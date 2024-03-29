@@ -1,67 +1,61 @@
-import React, { useState, useEffect } from "react";
-import { Button, Form, Input, Select } from "antd";
+import React, { useState, useEffect, useContext } from "react";
+import { Button, Form, Input, Select, message } from "antd";
+import { LoginContext } from "../../../../context/LoginContext";
+
+const BASE_BACKEND_URL = "http://localhost:8080/api/v1";
 
 interface ClassDetailProps {
   item: {
     id: string;
     name: string;
     grade: number;
-    teacher: string;
+    teacher: any;
     kids: any[];
   };
   onCancel: () => void;
-  onSubmited: (updatedValues: any) => void;
 }
 
-const ClassDetail: React.FC<ClassDetailProps> = ({
-  item,
-  onCancel,
-  onSubmited,
-}) => {
-  const [teachers, setTeachers] = useState<any[]>([]);
-  const [kids, setKids] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+const ClassDetail: React.FC<ClassDetailProps> = ({ item, onCancel }) => {
+  const [teachersToAdd, setTeachersToAdd] = useState<any[]>([]);
+  const [kidsToAdd, setKidsToAdd] = useState<any[]>([]);
+  const LoginCtx = useContext(LoginContext);
+  const [messageApi, contextHolder] = message.useMessage();
 
   useEffect(() => {
-    // Simulate fetching teachers and kids (replace with actual API calls)
-    const fetchTeachers = async () => {
-      const teacherList = [
-        {
-          id: 1,
-          name: "John Doe",
-          username: "teacher1",
-          password: "hashed password",
-        },
-        {
-          id: 2,
-          name: "Jane Smith",
-          username: "teacher2",
-          password: "hashed password",
-        },
-      ];
-      setTeachers(teacherList);
-      setIsLoading(false);
-    };
+    const fetchData = async () => {
+      try {
+        const token = LoginCtx.authToken || localStorage.getItem("authToken");
+        const teacherResponse = await fetch(BASE_BACKEND_URL + "/teacher/all", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const teacherData = await teacherResponse.json();
+        setTeachersToAdd(teacherData.data);
 
-    fetchTeachers();
-    setKids(item.kids); // Set kids from the item prop
+        const kidResponse = await fetch(BASE_BACKEND_URL + "/kid/all", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const kidData = await kidResponse.json();
+        setKidsToAdd(kidData.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    console.log("Item:", item);
+
+    fetchData();
   }, [item]);
 
-  const handleUpdate = (values: any) => {
-    onSubmited(values); // Pass updated values to parent component
-  };
+  const handleUpdate = (values: any) => {};
 
   const handleDelete = () => {};
-
-  const handleChange = (value: string[]) => {
-    console.log(`selected ${value}`);
-  };
-
-  const filterOptions = (inputValue: string, options: any[]) => {
-    return options.filter((option) =>
-      option.label.toLowerCase().includes(inputValue.toLowerCase())
-    );
-  };
 
   return (
     <>
@@ -72,64 +66,78 @@ const ClassDetail: React.FC<ClassDetailProps> = ({
         onFinish={handleUpdate}
         labelCol={{ span: 6 }}
         wrapperCol={{ span: 14 }}
+        style={{
+          maxWidth: 700,
+          margin: "auto",
+          padding: 40,
+          border: "1px solid #ddd",
+          borderRadius: 5,
+          backgroundColor: "white",
+          fontSize: 16,
+          lineHeight: 1.5,
+          marginTop: 10,
+        }}
       >
         <Form.Item
-          label="Name"
+          label="Name:"
           name="name"
-          rules={[{ required: true, message: "Please enter the class name" }]}	
+          rules={[{ required: true, message: "Please enter the class name" }]}
         >
-          <Input defaultValue={item.name} />
+          <Input placeholder={`${item.name}`} />
         </Form.Item>
         <Form.Item
-          label="Grade"
+          label="Grade:"
           name="grade"
           rules={[{ required: true, message: "Please enter the grade" }]}
         >
-          <Input defaultValue={item.grade} />
+          <Input placeholder={`${item.grade}`} />
         </Form.Item>
         <Form.Item
-          label="Teacher"
-          name="teacher"
+          label="Incharged Teacher:"
+          name="teacherId"
           rules={[{ required: true, message: "Please select a teacher" }]}
         >
-          {isLoading ? (
-            <span>Loading teachers...</span>
-          ) : (
-            <Select
-              showSearch // Enable searching
-              defaultValue={item.teacher}
-              filterOption={(inputValue, option) =>
-                option?.label.toLowerCase().includes(inputValue.toLowerCase())
-              }
-              options={teachers.map((teacher) => ({
-                value: teacher.id,
-                label: teacher.name,
-              }))}
-            />
-          )}
+          <Select
+            showSearch // Enable searching
+            defaultValue={item.teacher.id}
+            placeholder="Please select a teacher"
+            filterOption={(inputValue, option) =>
+              (option?.label?.toString()?.toLowerCase() || "").includes(
+                inputValue.toLowerCase()
+              )
+            }
+            options={teachersToAdd.map((teacher) => ({
+              value: teacher.id,
+              label: teacher.fullName,
+              selected: item.teacher.id === teacher.id,
+            }))}
+          />
         </Form.Item>
 
         <Form.Item
-          label="Kids"
-          name="kids"
+          label="Kids:"
+          name="kidIds"
           rules={[{ required: true, message: "Please select kids" }]}
         >
-          {isLoading ? (
-            <span>Loading kids...</span>
-          ) : (
-            <Select
-              mode="multiple"
-              filterOption={(inputValue, option) =>
-                option?.label.toLowerCase().includes(inputValue.toLowerCase())
-              }
-              allowClear
-              placeholder="Please select at least 1 kid"
-              defaultValue={item.kids.map((kid) => kid.id)} // Set default value as IDs
-              value={kids.map((kid) => kid.id)} // Set current selected value as IDs
-              onChange={handleChange}
-              options={kids.map((kid) => ({ value: kid.id, label: kid.name }))}
-            />
-          )}
+          <Select
+            showSearch
+            mode="multiple"
+            defaultValue={item.kids.map((kid) => kid.id)}
+            filterOption={(inputValue, option) =>
+              (option?.label?.toString()?.toLowerCase() || "").includes(
+                inputValue.toLowerCase()
+              )
+            }
+            placeholder="Please select at least 1 kid"
+            // Set default selected kids based on item prop
+            options={kidsToAdd.map((kid) => ({
+              value: kid.id,
+              label: ` ${kid.fullName} - Lớp: ${
+                kid.classBelongsTo?.name || "Chưa có"
+              }`,
+              selected: item.kids.map((kid) => kid.id).includes(kid.id),
+            }))}
+          />
         </Form.Item>
 
         <Form.Item wrapperCol={{ offset: 6, span: 12 }}>

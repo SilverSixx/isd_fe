@@ -4,38 +4,31 @@ import { LoginContext } from "../../../context/LoginContext";
 
 const BASE_BACKEND_URL = "http://localhost:8080/api/v1";
 
-const CreateTeacher = ({
+const CreateParent = ({
   onCancel,
   onCreateSuccess,
 }: {
   onCancel: () => void;
   onCreateSuccess: () => void;
 }) => {
-  const [classesToAdd, setClassesToAdd] = useState<any[]>([]);
+  const [kidToAdd, setKidToAdd] = useState<any[]>([]);
   const LoginCtx = useContext(LoginContext);
   const [messageApi, contextHolder] = message.useMessage();
 
   useEffect(() => {
-    const fetchClassData = async () => {
-      try {
-        const token = LoginCtx.authToken || localStorage.getItem("authToken");
-        const response = await fetch(BASE_BACKEND_URL + "/class/all", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (!response.ok) {
-          throw new Error("Failed to fetch class data");
-        }
-        const res = await response.json();
-        setClassesToAdd(res.data);
-      } catch (error) {
-        console.error("Error fetching class data:", error);
-      }
+    const fetchKidData = async () => {
+      const token = LoginCtx.authToken || localStorage.getItem("authToken");
+      const response = await fetch(BASE_BACKEND_URL + "/kid/all", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const res = await response.json();
+      setKidToAdd(res.data);
     };
-    fetchClassData();
+    fetchKidData();
   }, []);
 
   const [form] = Form.useForm();
@@ -44,8 +37,7 @@ const CreateTeacher = ({
     try {
       const values = await form.validateFields();
       const token = LoginCtx.authToken || localStorage.getItem("authToken");
-
-      const response = await fetch(BASE_BACKEND_URL + "/teacher/create", {
+      const response = await fetch(BASE_BACKEND_URL + "/parent/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -74,7 +66,7 @@ const CreateTeacher = ({
 
   return (
     <Modal
-      title="Create New Teacher"
+      title="Create New Parent"
       visible={true}
       onCancel={onCancel}
       footer={[
@@ -104,18 +96,22 @@ const CreateTeacher = ({
           name="password"
           rules={[{ required: true, message: "Please enter a password" }]}
         >
-          <Input.Password />
+          <Input type="password" />
         </Form.Item>
-        <Form.Item label="Classes" name="classes">
+        <Form.Item label="Kid:" name="kidId">
           <Select
             showSearch
-            mode="multiple"
+            value={kidToAdd.map((k) => k.id)}
             filterOption={(inputValue, option) =>
-              option?.label.toLowerCase().includes(inputValue.toLowerCase())
+              (option?.label?.toString()?.toLowerCase() || "").includes(
+                inputValue.toLowerCase()
+              )
             }
-            options={classesToAdd.map((c) => ({
-              value: c.id,
-              label: c.name,
+            options={kidToAdd.map((k) => ({
+              value: k.id,
+              label: `${k.fullName} - ${
+                k?.parent?.fullName || "Chưa có thông tin cha mẹ"
+              }`,
             }))}
           />
         </Form.Item>
@@ -124,4 +120,4 @@ const CreateTeacher = ({
   );
 };
 
-export default CreateTeacher;
+export default CreateParent;

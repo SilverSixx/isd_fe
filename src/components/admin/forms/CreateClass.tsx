@@ -1,83 +1,89 @@
-import { useState, useEffect } from "react";
-import { Form, Input, Button, Modal, Select } from "antd";
+import { useState, useEffect, useContext } from "react";
+import { Form, Input, Button, Modal, Select, message } from "antd";
+import { LoginContext } from "../../../context/LoginContext";
+
+const BASE_BACKEND_URL = "http://localhost:8080/api/v1";
 
 const CreateClass = ({
-  onSubmit,
   onCancel,
+  onCreateSuccess,
 }: {
-  onSubmit: any;
-  onCancel: any;
+  onCancel: () => void;
+  onCreateSuccess: () => void;
 }) => {
-  const [name, setName] = useState("");
-  const [grade, setGrade] = useState();
-  const [teacher, setTeacher] = useState();
-  const [kids, setKids] = useState<any[]>([]);
-
+  const LoginCtx = useContext(LoginContext);
   const [teacherToAdd, setTeacherToAdd] = useState<any[]>([]);
   const [kidsToAdd, setKidsToAdd] = useState<any[]>([]);
+  const [form] = Form.useForm();
+  const [messageApi, contextHolder] = message.useMessage();
 
   useEffect(() => {
-    // Simulate fetching teachers and kids (replace with actual API calls)
-    const fetchTeachers = async () => {
-      const teacherList = [
-        {
-          id: 1,
-          name: "John Doe",
-          username: "teacher1",
-          password: "hashed password",
-        },
-        {
-          id: 2,
-          name: "Jane Smith",
-          username: "teacher2",
-          password: "hashed password",
-        },
-      ];
-      setTeacherToAdd(teacherList);
+    const fetchData = async () => {
+      try {
+        const token = LoginCtx.authToken || localStorage.getItem("authToken");
+        const teacherResponse = await fetch(BASE_BACKEND_URL + "/teacher/all", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const teacherData = await teacherResponse.json();
+        setTeacherToAdd(teacherData.data);
+
+        const kidResponse = await fetch(BASE_BACKEND_URL + "/kid/all", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const kidData = await kidResponse.json();
+        setKidsToAdd(kidData.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
     };
 
-    const fetchKids = async () => {
-      const kidsList = [
-        {
-          id: 1,
-          name: "Alice",
-          nickname: "Cún",
-          age: 5,
-          parentName: "Đạt",
+    fetchData();
+  }, [LoginCtx.authToken]);
+
+  const handleOnSubmit = async () => {
+    try {
+      const values = await form.validateFields();
+      const token = LoginCtx.authToken || localStorage.getItem("authToken");
+
+      const response = await fetch(BASE_BACKEND_URL + "/class/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-        {
-          id: 2,
-          name: "Bob",
-          nickname: "Cún",
-          age: 6,
-          parentName: "Chi",
-        },
-      ];
-      setKidsToAdd(kidsList);
-    };
-
-    fetchTeachers();
-    fetchKids();
-  }, []);
-
-  const [form] = Form.useForm();
-
-  const handleOnSubmit = () => {
-    form
-      .validateFields()
-      .then((values) => {
-        onSubmit(values);
-        form.resetFields();
-      })
-      .catch((errorInfo) => {
-        console.error("Failed:", errorInfo);
+        body: JSON.stringify(values),
       });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (!data?.error) {
+          messageApi.success(data?.message);
+          setTimeout(() => {
+            onCreateSuccess();
+          }, 3500);
+        } else {
+          message.error(data?.message);
+        }
+      } else {
+        message.error("Bad credentials.");
+      }
+    } catch (error) {
+      message.error("Error when calling API to backend service.");
+    }
   };
 
   return (
     <Modal
       title="Create New Class"
-      visible={true} // Assuming modal is directly controlled here
+      visible={true}
       onCancel={onCancel}
       footer={[
         <Button key="submit" type="primary" onClick={handleOnSubmit}>
@@ -85,60 +91,70 @@ const CreateClass = ({
         </Button>,
       ]}
     >
+      {contextHolder}
       <Form form={form} layout="vertical">
         <Form.Item
           label="Name:"
           name="name"
           rules={[{ required: true, message: "Please enter a name" }]}
         >
-          <Input value={name} onChange={(e) => setName(e.target.value)} />
+          <Input />
         </Form.Item>
         <Form.Item
           label="Grade:"
           name="grade"
           rules={[{ required: true, message: "Please select a grade" }]}
         >
-          <Select
-            options={(
-              Array.from({ length: 4 }, (_, i) => i + 2) as number[]
-            ).map((value) => ({
-              value: value.toString(),
-              label: value.toString(),
-            }))}
-          />
+          <Select>
+            {Array.from({ length: 4 }, (_, i) => i + 2).map((value) => (
+              <Select.Option key={value} value={value.toString()}>
+                {value.toString()}
+              </Select.Option>
+            ))}
+          </Select>
         </Form.Item>
         <Form.Item
           label="Incharged Teacher:"
-          name="teacher"
+          name="teacherId"
           rules={[{ required: true, message: "Please select a teacher" }]}
         >
           <Select
             showSearch
             filterOption={(inputValue, option) =>
-              option?.label.toLowerCase().includes(inputValue.toLowerCase())
+              (option?.label?.toString()?.toLowerCase() || "").includes(
+                inputValue.toLowerCase()
+              )
             }
-            options={teacherToAdd.map((teacher) => ({
-              value: teacher.id,
-              label: teacher.name,
-            }))}
-          />
+          >
+            {teacherToAdd.map((teacher) => (
+              <Select.Option key={teacher.id} value={teacher.id}>
+                {teacher.fullName}
+              </Select.Option>
+            ))}
+          </Select>
         </Form.Item>
         <Form.Item
           label="Kids:"
-          name="kids"
+          name="kidIds"
           rules={[{ required: true, message: "Please select kids" }]}
         >
           <Select
             showSearch
             mode="multiple"
             filterOption={(inputValue, option) =>
-              option?.label.toLowerCase().includes(inputValue.toLowerCase())
+              (option?.label?.toString()?.toLowerCase() || "").includes(
+                inputValue.toLowerCase()
+              )
             }
-            options={kidsToAdd.map((kid) => ({
-              value: kid.id,
-              label: kid.name,
-            }))}
-          />
+          >
+            {kidsToAdd.map((kid) => (
+              <Select.Option key={kid.id} value={kid.id}>
+                {`${kid.fullName} - ${
+                  kid?.classBelongsTo?.name || "Chưa có lớp"
+                }`}
+              </Select.Option>
+            ))}
+          </Select>
         </Form.Item>
       </Form>
     </Modal>

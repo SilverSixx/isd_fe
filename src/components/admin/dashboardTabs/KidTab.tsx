@@ -1,145 +1,124 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Button, Table } from "antd";
 import KidDetail from "./details/KidDetail";
 import CreateKid from "../forms/CreateKid";
+import { LoginContext } from "../../../context/LoginContext";
 
-const kidsData = [
-  {
-    id: 1,
-    fullName: "Alice Jayce",
-    nickname: "Cún",
-    age: 5,
-    cls: [{ id: 1, name: "Nụ", grade: 5 }],
-    parentName: "John Doe",
-  },
-  {
-    id: 2,
-    fullName: "Bob",
-    nickname: "Thỏ",
-    age: 2,
-    cls: [{ id: 1, name: "Mầm", grade: 2 }],
-    parentName: "Jane Smith",
-  },
-  {
-    id: 3,
-    fullName: "Charlie",
-    nickname: "Bông",
-    age: 4,
-    cls: [{ id: 1, name: "Lá", grade: 4 }],
-    parentName: "Peter Jones",
-  },
-];
-
+const BASE_BACKEND_URL = "http://localhost:8080/api/v1";
 const ITEMS_PER_PAGE = 7;
 
 const KidTab: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [isEditing, setEditing] = useState(false);
-  const [selectedKid, setselectedKid] = useState<any>(null);
+  const [kidsData, setKidsData] = useState<any>([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [selectedKid, setSelectedKid] = useState<any>(null);
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
-  const [newKidData, setnewKidData] = useState<any>({
-    fullName: "",
-    parentfullName: "",
-  });
+  const [keyForRemount, setKeyForRemount] = useState(0);
 
-  const currentTableData = kidsData.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
+  const LoginCtx = useContext(LoginContext);
 
   useEffect(() => {
-    setCurrentPage(1); // Reset to first page on state changes
-  }, [isEditing, isCreateModalVisible, newKidData]);
+    const fetchData = async () => {
+      try {
+        const token = LoginCtx.authToken || localStorage.getItem("authToken");
+        const response = await fetch(BASE_BACKEND_URL + "/kid/all", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const res = await response.json();
+        setKidsData(res.data);
+      } catch (error) {
+        console.error("Error fetching kid data:", error);
+      }
+    };
 
-  const handleChangePage = (page: number) => {
-    setCurrentPage(page);
-  };
+    fetchData();
+  }, [keyForRemount]);
 
   const columns = [
     {
       title: "Full Name",
       dataIndex: "fullName",
-      key: "fullName",
+      key: "name",
     },
     {
       title: "Nickname",
-      dataIndex: "nickname",
+      dataIndex: "nickName",
       key: "nickname",
     },
     {
-      title: "Class",
-      dataIndex: "cls",
-      key: "cls",
-      render: (c: any) => c.name,
+      title: "Age",
+      dataIndex: "dob",
+      key: "dob",
+      render: (dob: string) => {
+        const today = new Date();
+        const birthYear = new Date(dob).getFullYear();
+        return today.getFullYear() - birthYear;
+      },
     },
     {
-      title: "Age",
-      dataIndex: "age",
-      key: "age",
+      title: "Class",
+      dataIndex: ["classBelongsTo", "name"],
+      key: "classBelongsTo",
     },
     {
       title: "Grade",
-      dataIndex: "cls",
-      key: "cls",
-      render: (c: any) => c.grade,
+      dataIndex: ["classBelongsTo", "grade"],
+      key: "gradeBelongsTo",
     },
     {
       title: "Parent",
-      dataIndex: "parentName",
-      key: "parentName",
+      dataIndex: ["parent", "fullName"],
+      key: "parent",
     },
     {
       title: "",
       key: "",
       render: (record: any) => (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-          }}
-        >
+        <div style={{ display: "flex", justifyContent: "flex-end" }}>
           <Button
             type="primary"
             size="middle"
             style={{ marginRight: 10 }}
-            onClick={() => {
-              handleEdit(record);
-            }}
+            onClick={() => handleEdit(record)}
           >
-            Update
-          </Button>
-          <Button danger size="middle">
-            Delete
+            Edit
           </Button>
         </div>
       ),
     },
   ];
 
+  const handleChangePage = (page: number) => {
+    setCurrentPage(page);
+  };
+
   const handleEdit = (record: any) => {
-    setEditing(true);
-    setselectedKid(record);
+    console.log("Editing kid:", record);
+    
+    setSelectedKid(record);
+    setIsEditing(true);
   };
 
   const handleCancelEdit = () => {
-    setEditing(false);
-    setselectedKid(null);
+    setIsEditing(false);
+    setSelectedKid(null);
   };
 
-  const handleCreateNewkid = () => {
+  const handleCreateNewKid = () => {
     setIsCreateModalVisible(true);
-    setnewKidData({ fullName: "", subject: "" });
-  };
-
-  const handleCreateKidSubmit = (values: any) => {
-    // Implement logic to create a new class object (e.g., API call, update state)
-
-    // setTeacherData([...classData, newClass]); // Add new class to existing data
-    setIsCreateModalVisible(false); // Close modal after successful submission
   };
 
   const handleCreateKidCancel = () => {
     setIsCreateModalVisible(false);
+  };
+
+  const handleCreateSuccess = () => {
+    setIsCreateModalVisible(false);
+    setKeyForRemount(keyForRemount + 1);
   };
 
   return (
@@ -148,20 +127,23 @@ const KidTab: React.FC = () => {
         <>
           <Button
             type="primary"
-            onClick={handleCreateNewkid}
+            onClick={handleCreateNewKid}
             style={{ marginBottom: "10px" }}
           >
             Create New Kid
           </Button>
           <Table
-            dataSource={currentTableData}
+            dataSource={kidsData.slice(
+              (currentPage - 1) * ITEMS_PER_PAGE,
+              currentPage * ITEMS_PER_PAGE
+            )}
             columns={columns}
             rowKey="id"
             pagination={{
               onChange: handleChangePage,
               current: currentPage,
               pageSize: ITEMS_PER_PAGE,
-              total: kidsData.length, // Total number of items for pagination
+              total: kidsData.length,
             }}
           />
         </>
@@ -172,7 +154,7 @@ const KidTab: React.FC = () => {
       {isCreateModalVisible && (
         <CreateKid
           onCancel={handleCreateKidCancel}
-          onSubmit={handleCreateKidSubmit}
+          onCreateSuccess={handleCreateSuccess}
         />
       )}
     </>

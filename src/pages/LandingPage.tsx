@@ -21,19 +21,20 @@ const LandingPage: React.FC = () => {
         <Text
           style={{
             position: "absolute",
-            top: "50%",
+            top: "45%",
             left: "50%",
             transform: "translate(-50%, -50%)",
             fontWeight: "bold",
-            fontSize: "3.5vw", // Use viewport-based unit for text size
+            fontSize: "3vw", // Use viewport-based unit for text size
             color: "white",
             textShadow: "0px 0px 10px rgba(0, 0, 0, 0.7)",
+            textAlign: "center",
           }}
         >
-          Welcome to Kinder Garten!
+          Chào mừng đến với hệ thống quản lý trường mầm non Bình Minh!
         </Text>
       </Content>
-      <SharedFooter place={"landingPage"} />
+      <SharedFooter place="" />
     </Layout>
   );
 };

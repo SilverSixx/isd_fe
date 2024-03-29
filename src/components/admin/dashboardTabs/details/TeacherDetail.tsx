@@ -1,10 +1,13 @@
-import React, { useEffect } from "react";
-import { Button, Form, Input, Select } from "antd";
+import React, { useEffect, useContext } from "react";
+import { Button, Form, Input, Select, message } from "antd";
+import { LoginContext } from "../../../../context/LoginContext";
+
+const BASE_BACKEND_URL = "http://localhost:8080/api/v1";
 
 interface TeacherDetailProps {
   item: {
     id: string;
-    name: string;
+    fullName: string;
     username: string;
     password: string;
     classes: any[];
@@ -14,16 +17,27 @@ interface TeacherDetailProps {
 
 const TeacherDetail: React.FC<TeacherDetailProps> = ({ item, onCancel }) => {
   const [classesToAdd, setClassesToAdd] = React.useState<any[]>([]);
+  const LoginCtx = useContext(LoginContext);
+  const [messageApi, contextHolder] = message.useMessage();
 
   useEffect(() => {
-    // Add logic for fetching classes from the backend
-    const classes = [
-      { id: 1, name: "Mầm", grade: 2 },
-      { id: 2, name: "Nụ", grade: 3 },
-      { id: 3, name: "Lá", grade: 4 },
-      { id: 4, name: "Cành", grade: 5 },
-    ];
-    setClassesToAdd(classes);
+    const fetchClassData = async () => {
+      try {
+        const token = LoginCtx.authToken || localStorage.getItem("authToken");
+        const response = await fetch(BASE_BACKEND_URL + "/class/all", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const res = await response.json();
+        setClassesToAdd(res.data);
+      } catch (error) {
+        console.error("Error fetching class data:", error);
+      }
+    };
+    fetchClassData();
   }, [item]);
 
   const handleUpdate = (values: any) => {
@@ -55,6 +69,7 @@ const TeacherDetail: React.FC<TeacherDetailProps> = ({ item, onCancel }) => {
           backgroundColor: "white",
           fontSize: 16,
           lineHeight: 1.5,
+          marginTop: 10,
         }}
       >
         <Form.Item
@@ -62,7 +77,7 @@ const TeacherDetail: React.FC<TeacherDetailProps> = ({ item, onCancel }) => {
           name="name"
           rules={[{ required: true, message: "Please enter a name" }]}
         >
-          <Input placeholder={`${item.name}`} />
+          <Input placeholder={`${item.fullName}`} />
         </Form.Item>
         <Form.Item
           label="Username"
@@ -89,13 +104,15 @@ const TeacherDetail: React.FC<TeacherDetailProps> = ({ item, onCancel }) => {
             showSearch
             mode="multiple"
             defaultValue={item.classes.map((c: any) => c.id)}
-            value={classesToAdd.map((c) => c.id)}
             filterOption={(inputValue, option) =>
-              option?.label.toLowerCase().includes(inputValue.toLowerCase())
+              (option?.label?.toString()?.toLowerCase() || "").includes(
+                inputValue.toLowerCase()
+              )
             }
             options={classesToAdd.map((c) => ({
               value: c.id,
               label: c.name,
+              selected: item.classes.map((c: any) => c.id).includes(c.id),
             }))}
           />
         </Form.Item>
