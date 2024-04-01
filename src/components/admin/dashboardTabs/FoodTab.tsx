@@ -1,17 +1,18 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Button, Table } from "antd";
-import KidDetail from "./details/KidDetail";
-import CreateKid from "../forms/CreateKid";
+import { Button, Table, message } from "antd";
+import FoodDetail from "./details/FoodDetail";
+import CreateFood from "../forms/CreateFood";
 import { LoginContext } from "../../../context/LoginContext";
 
 const BASE_BACKEND_URL = "http://localhost:8080/api/v1";
 const ITEMS_PER_PAGE = 7;
 
-const KidTab: React.FC = () => {
+const FoodTab: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [kidsData, setKidsData] = useState<any>([]);
+  const [foodData, setFoodData] = useState<any>([]);
+  const [kidData, setKidData] = useState<any>([]);
   const [isEditing, setIsEditing] = useState(false);
-  const [selectedKid, setSelectedKid] = useState<any>(null);
+  const [selectedFood, setSelectedFood] = useState<any>(null);
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
   const [keyForRemount, setKeyForRemount] = useState(0);
 
@@ -21,7 +22,7 @@ const KidTab: React.FC = () => {
     const fetchData = async () => {
       try {
         const token = LoginCtx.authToken || localStorage.getItem("authToken");
-        const response = await fetch(BASE_BACKEND_URL + "/kid/all", {
+        const response = await fetch(BASE_BACKEND_URL + "/food/all", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -29,62 +30,65 @@ const KidTab: React.FC = () => {
           },
         });
         const res = await response.json();
-        setKidsData(res.data);
+        console.log("res.data", res.data);
+
+        setFoodData(res.data);
       } catch (error) {
-        console.error("Error fetching kid data:", error);
+        console.error("Error fetching teacher data:", error);
       }
     };
 
     fetchData();
+
+    const fetchKidData = async () => {
+      const token = LoginCtx.authToken || localStorage.getItem("authToken");
+      const response = await fetch(BASE_BACKEND_URL + "/kid/all", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const res = await response.json();
+      setKidData(res.data);
+    };
+
+    fetchKidData();
   }, [keyForRemount]);
+
+  const handleChangePage = (page: number) => {
+    setCurrentPage(page);
+  };
 
   const columns = [
     {
-      title: "Full Name",
-      dataIndex: "fullName",
+      title: "Tên món ăn",
+      dataIndex: "name",
       key: "name",
     },
     {
-      title: "Nickname",
-      dataIndex: "nickName",
-      key: "nickname",
+      title: "Định lượng tổng",
+      dataIndex: "totalAmount",
+      key: "totalAmount",
+      render: (totalAmount: number) => totalAmount + " kg",
     },
     {
-      title: "Age",
-      dataIndex: "dob",
-      key: "dob",
-      render: (dob: string) => {
-        const today = new Date();
-        const birthYear = new Date(dob).getFullYear();
-        return today.getFullYear() - birthYear;
+      title: "Định lượng cá nhân",
+      dataIndex: "totalAmount",
+      key: "totalAmountPerKid",
+      render: (totalAmount: number) => {
+        if (kidData && kidData.length > 0) {
+          return (totalAmount / kidData.length).toFixed(2) + " kg";
+        } else {
+          return "";
+        }
       },
     },
     {
-      title: "Class",
-      dataIndex: ["classBelongsTo", "name"],
-      key: "classBelongsTo",
-    },
-    {
-      title: "Grade",
-      dataIndex: ["classBelongsTo", "grade"],
-      key: "gradeBelongsTo",
-    },
-    {
-      title: "Dị ứng với",
-      dataIndex: "allergyFoods",
-      key: "allergyFoods",
-      render: (allergyFoods: any) => (
-        <>
-          {allergyFoods.map((food: any) => (
-            <span>{food.name + ", "}</span>
-          ))}
-        </>
-      ),
-    },
-    {
-      title: "Parent",
-      dataIndex: ["parent", "fullName"],
-      key: "parent",
+      title: "Số trẻ dị ứng với món ăn",
+      dataIndex: "allergyKids",
+      key: "kidallergyKids",
+      render: (allergyKids: any[]) => allergyKids?.length || 0,
     },
     {
       title: "",
@@ -95,7 +99,7 @@ const KidTab: React.FC = () => {
             type="primary"
             size="middle"
             style={{ marginRight: 10 }}
-            onClick={() => handleEdit(record)}
+            onClick={() => handleEditClick(record)}
           >
             Edit
           </Button>
@@ -104,27 +108,21 @@ const KidTab: React.FC = () => {
     },
   ];
 
-  const handleChangePage = (page: number) => {
-    setCurrentPage(page);
-  };
-
-  const handleEdit = (record: any) => {
-    console.log("Editing kid:", record);
-
-    setSelectedKid(record);
+  const handleEditClick = (record: any) => {
     setIsEditing(true);
+    setSelectedFood(record);
   };
 
   const handleCancelEdit = () => {
     setIsEditing(false);
-    setSelectedKid(null);
+    setSelectedFood(null);
   };
 
-  const handleCreateNewKid = () => {
+  const handleCreateNewTeacher = () => {
     setIsCreateModalVisible(true);
   };
 
-  const handleCreateKidCancel = () => {
+  const handleCreateTeacherCancel = () => {
     setIsCreateModalVisible(false);
   };
 
@@ -135,7 +133,7 @@ const KidTab: React.FC = () => {
 
   const onUpdateSuccess = () => {
     setIsEditing(false);
-    setSelectedKid(null);
+    setSelectedFood(null);
     setKeyForRemount(keyForRemount + 1);
   };
 
@@ -145,13 +143,13 @@ const KidTab: React.FC = () => {
         <>
           <Button
             type="primary"
-            onClick={handleCreateNewKid}
+            onClick={handleCreateNewTeacher}
             style={{ marginBottom: "10px" }}
           >
-            Create New Kid
+            Thêm mới món ăn
           </Button>
           <Table
-            dataSource={kidsData.slice(
+            dataSource={foodData?.slice(
               (currentPage - 1) * ITEMS_PER_PAGE,
               currentPage * ITEMS_PER_PAGE
             )}
@@ -161,21 +159,21 @@ const KidTab: React.FC = () => {
               onChange: handleChangePage,
               current: currentPage,
               pageSize: ITEMS_PER_PAGE,
-              total: kidsData.length,
+              total: foodData?.length,
             }}
           />
         </>
       )}
       {isEditing && (
-        <KidDetail
-          item={selectedKid}
+        <FoodDetail
+          item={selectedFood}
           onCancel={handleCancelEdit}
           onUpdateSuccess={onUpdateSuccess}
         />
       )}
       {isCreateModalVisible && (
-        <CreateKid
-          onCancel={handleCreateKidCancel}
+        <CreateFood
+          onCancel={handleCreateTeacherCancel}
           onCreateSuccess={handleCreateSuccess}
         />
       )}
@@ -183,4 +181,4 @@ const KidTab: React.FC = () => {
   );
 };
 
-export default KidTab;
+export default FoodTab;

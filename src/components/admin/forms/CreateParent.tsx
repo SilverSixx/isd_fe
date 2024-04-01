@@ -67,7 +67,7 @@ const CreateParent = ({
   return (
     <Modal
       title="Create New Parent"
-      visible={true}
+      open={true}
       onCancel={onCancel}
       footer={null}
     >

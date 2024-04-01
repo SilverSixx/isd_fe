@@ -1,51 +1,43 @@
-import { useEffect, useState, useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Form, Input, Button, Modal, Select, message } from "antd";
 import { LoginContext } from "../../../context/LoginContext";
 
 const BASE_BACKEND_URL = "http://localhost:8080/api/v1";
 
-const CreateTeacher = ({
+const CreateFood = ({
   onCancel,
   onCreateSuccess,
 }: {
   onCancel: () => void;
   onCreateSuccess: () => void;
 }) => {
-  const [classesToAdd, setClassesToAdd] = useState<any[]>([]);
+  const [kidToAdd, setKidToAdd] = useState<any[]>([]);
   const LoginCtx = useContext(LoginContext);
   const [messageApi, contextHolder] = message.useMessage();
 
-  useEffect(() => {
-    const fetchClassData = async () => {
-      try {
-        const token = LoginCtx.authToken || localStorage.getItem("authToken");
-        const response = await fetch(BASE_BACKEND_URL + "/class/all", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (!response.ok) {
-          throw new Error("Failed to fetch class data");
-        }
-        const res = await response.json();
-        setClassesToAdd(res.data);
-      } catch (error) {
-        console.error("Error fetching class data:", error);
-      }
-    };
-    fetchClassData();
-  }, []);
-
   const [form] = Form.useForm();
+
+  useEffect(() => {
+    const fetchKidData = async () => {
+      const token = LoginCtx.authToken || localStorage.getItem("authToken");
+      const response = await fetch(BASE_BACKEND_URL + "/kid/all", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const res = await response.json();
+      setKidToAdd(res.data);
+    };
+    fetchKidData();
+  }, []);
 
   const handleOnSubmit = async () => {
     try {
       const values = await form.validateFields();
       const token = LoginCtx.authToken || localStorage.getItem("authToken");
-
-      const response = await fetch(BASE_BACKEND_URL + "/teacher/create", {
+      const response = await fetch(BASE_BACKEND_URL + "/food/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -74,7 +66,7 @@ const CreateTeacher = ({
 
   return (
     <Modal
-      title="Create New Teacher"
+      title="Thêm mới món ăn"
       open={true}
       onCancel={onCancel}
       footer={null}
@@ -82,36 +74,39 @@ const CreateTeacher = ({
       {contextHolder}
       <Form form={form} layout="vertical" onFinish={handleOnSubmit}>
         <Form.Item
-          label="Name:"
-          name="fullName"
-          rules={[{ required: true, message: "Please enter a full name" }]}
+          label="Tên món ăn:"
+          name="name"
+          rules={[{ required: true, message: "Bạn phải nhập 1 chuỗi ký tự" }]}
         >
           <Input />
         </Form.Item>
         <Form.Item
-          label="Username:"
-          name="username"
-          rules={[{ required: true, message: "Please enter an username" }]}
+          label="Định lượng tổng:"
+          name="totalAmount"
+          rules={[
+            {
+              required: true,
+              message: "Bạn phải nhập 1 lượng thức ăn nhất định",
+            },
+          ]}
         >
-          <Input />
+          <Input placeholder="Đơn vị: kg" />
         </Form.Item>
-        <Form.Item
-          label="Password:"
-          name="password"
-          rules={[{ required: true, message: "Please enter a password" }]}
-        >
-          <Input.Password />
-        </Form.Item>
-        <Form.Item label="Classes" name="classes">
+        <Form.Item label="Trẻ dị ứng với món ăn này:" name="kidIds">
           <Select
             showSearch
             mode="multiple"
+            value={kidToAdd.map((k) => k.id)}
             filterOption={(inputValue, option) =>
-              option?.label.toLowerCase().includes(inputValue.toLowerCase())
+              (option?.label?.toString()?.toLowerCase() || "").includes(
+                inputValue.toLowerCase()
+              )
             }
-            options={classesToAdd.map((c) => ({
-              value: c.id,
-              label: c.name,
+            options={kidToAdd.map((k) => ({
+              value: k.id,
+              label: `${k.fullName} - ${
+                k?.parent?.fullName || "Chưa có thông tin cha mẹ"
+              }`,
             }))}
           />
         </Form.Item>
@@ -125,4 +120,4 @@ const CreateTeacher = ({
   );
 };
 
-export default CreateTeacher;
+export default CreateFood;

@@ -54,7 +54,7 @@ export default function LoginProvider({ children }: LoginProviderProps) {
       setUser(JSON.parse(user));
       setIsLoggedIn(loggedIn === "true");
     }
-  })
+  }, [])
 
   return (
     <LoginContext.Provider value={{ user, setUser, authToken, setAuthToken, isLoggedIn, setIsLoggedIn }}>

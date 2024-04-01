@@ -12,6 +12,7 @@ interface KidDetailProps {
     dob: string;
     classBelongsTo: any;
     parent: any;
+    allergyFoods: any[];
   };
   onCancel: () => void;
   onUpdateSuccess: () => void;
@@ -24,6 +25,7 @@ const KidDetail: React.FC<KidDetailProps> = ({
 }) => {
   const [classesToAssign, setClassesToAssign] = useState<any[]>([]);
   const [parentsToAssign, setParentsToAssign] = useState<any[]>([]);
+  const [food, setFood] = useState<any[]>([]);
   const [form] = Form.useForm();
   const LoginCtx = useContext(LoginContext);
   const [messageApi, contextHolder] = message.useMessage();
@@ -32,29 +34,40 @@ const KidDetail: React.FC<KidDetailProps> = ({
     const fetchData = async () => {
       try {
         const token = LoginCtx.authToken || localStorage.getItem("authToken");
-        const [classResponse, parentResponse] = await Promise.all([
-          fetch(BASE_BACKEND_URL + "/class/all", {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }),
-          fetch(BASE_BACKEND_URL + "/parent/all", {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }),
-        ]);
+        const [classResponse, parentResponse, foodResponse] = await Promise.all(
+          [
+            fetch(BASE_BACKEND_URL + "/class/all", {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            }),
+            fetch(BASE_BACKEND_URL + "/parent/all", {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            }),
+            fetch(BASE_BACKEND_URL + "/food/all", {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            }),
+          ]
+        );
 
-        const [classData, parentData] = await Promise.all([
+        const [classData, parentData, foodData] = await Promise.all([
           classResponse.json(),
           parentResponse.json(),
+          foodResponse.json(),
         ]);
         setClassesToAssign(classData.data);
         setParentsToAssign(parentData.data);
+        setFood(foodData.data);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -109,7 +122,6 @@ const KidDetail: React.FC<KidDetailProps> = ({
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          
         }
       );
       const res = await response.json();
@@ -138,7 +150,7 @@ const KidDetail: React.FC<KidDetailProps> = ({
         wrapperCol={{ span: 14 }}
         form={form}
         style={{
-          maxWidth: 500,
+          maxWidth: 700,
           margin: "auto",
           marginTop: 10,
           padding: 40,
@@ -169,6 +181,25 @@ const KidDetail: React.FC<KidDetailProps> = ({
           rules={[{ required: true, message: "Please enter a date of birth" }]}
         >
           <DatePicker placeholder={`${item.dob.substring(0, 10)}`} />
+        </Form.Item>
+        <Form.Item label="Thức ăn bị dị ứng" name="foodIds">
+          <Select
+            showSearch
+            mode="multiple"
+            defaultValue={
+              Array.isArray(item?.allergyFoods)
+                ? item.allergyFoods.map((food) => food.id)
+                : []
+            }
+            filterOption={(inputValue, option) =>
+              option?.label.toLowerCase().includes(inputValue.toLowerCase())
+            }
+            options={food.map((f) => ({
+              value: f.id,
+              label: f.name,
+              selected: item?.allergyFoods?.some((af) => af.id === f.id),
+            }))}
+          />
         </Form.Item>
         <Form.Item
           label="Classes"
@@ -205,7 +236,9 @@ const KidDetail: React.FC<KidDetailProps> = ({
             }
             options={parentsToAssign.map((p) => ({
               value: p.id,
-              label: `${p.fullName} - ${p?.kid?.fullName || "Chưa có thông tin trẻ"}`,
+              label: `${p.fullName} - ${
+                p?.kid?.fullName || "Chưa có thông tin trẻ"
+              }`,
               selected: p.id === item?.parent?.id,
             }))}
           />

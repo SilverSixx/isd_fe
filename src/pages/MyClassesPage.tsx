@@ -1,31 +1,49 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Layout, Card, Button, Typography, Select, Image } from "antd";
 import SharedHeader from "../components/share/SharedHeader";
 import SharedFooter from "../components/share/SharedFooter";
+import { LoginContext } from "../context/LoginContext";
 
 const { Content } = Layout;
 const { Title } = Typography;
 const { Option } = Select;
-
-const classesData = [
-  { id: 1, className: "Class 2 Yo", ageGroup: 2 },
-  { id: 2, className: "Class 3 Yo", ageGroup: 3 },
-  { id: 3, className: "Class 4 Yo", ageGroup: 4 },
-  { id: 4, className: "Class 5 Yo", ageGroup: 5 },
-];
+const BASE_BACKEND_URL = "http://localhost:8080/api/v1";
 
 const MyClassesPage: React.FC = () => {
-  const [selectedFilter, setSelectedFilter] = useState<number | null>(null);
+  const [classData, setClassData] = useState<any>([]);
+  const [ageGroupFilter, setAgeGroupFilter] = useState<number | null>(null);
+  const LoginCtx = React.useContext(LoginContext);
+
+  useEffect(() => {
+    const fetchClassData = async () => {
+      try {
+        const token = LoginCtx.authToken || localStorage.getItem("authToken");
+        const response = await fetch(BASE_BACKEND_URL + "/class/all", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const res = await response.json();
+        setClassData(res.data);
+      } catch (error) {
+        console.error("Error fetching class data:", error);
+        // Handle error gracefully, e.g., display an error message
+      }
+    };
+    fetchClassData();
+  }, []);
 
   const handleFilter = (ageGroup: number | null) => {
-    setSelectedFilter(ageGroup);
+    setAgeGroupFilter(ageGroup);
   };
 
   const filteredClasses =
-    selectedFilter === null
-      ? classesData
-      : classesData.filter((cls) => cls.ageGroup === selectedFilter);
+    ageGroupFilter === null
+      ? classData
+      : classData.filter((cls: any) => cls.grade === ageGroupFilter);
 
   return (
     <Layout style={{ minHeight: "100vh", margin: -8 }}>
@@ -57,42 +75,59 @@ const MyClassesPage: React.FC = () => {
           </Title>
           <Select
             style={{ width: 160 }}
-            defaultValue={selectedFilter}
+            value={ageGroupFilter}
             onChange={handleFilter}
             placeholder="Filter by Age"
           >
-            <Option value={null}>All</Option>
-            {classesData.map((cls) => (
-              <Option key={cls.id} value={cls.ageGroup}>
-                Class {cls.ageGroup} Yo
+            <Option value={null}>Tất cả</Option>
+            {classData.map((cls: any) => (
+              <Option key={cls.id} value={cls.grade}>
+                Lớp {cls.grade} tuổi
               </Option>
             ))}
           </Select>
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, max(335px))",
+              gridTemplateColumns: "repeat(auto-fit, max(300px))",
               gap: "16px",
               marginTop: "24px",
             }}
           >
-            {filteredClasses.map((cls) => (
-              <Card
+            {filteredClasses.map((cls: any) => (
+              <ClassCard
                 key={cls.id}
-                title={cls.className}
-                style={{ width: "100%" }}
-              >
-                <p>Age Group: {cls.ageGroup} Yo</p>
-                <Link to={`/classes/${cls.id}`}>
-                  <Button type="primary">View Details</Button>
-                </Link>
-              </Card>
+                name={cls.name}
+                grade={cls.grade}
+                id={cls.id}
+                teacher={undefined}
+                kids={[]}
+              />
             ))}
           </div>
         </div>
       </Content>
       <SharedFooter place="" />
     </Layout>
+  );
+};
+
+interface ClassCardProps {
+  id: string | number;
+  name: string;
+  grade: number;
+  teacher: any;
+  kids: any[];
+}
+
+const ClassCard: React.FC<ClassCardProps> = ({ grade, name, id }) => {
+  return (
+    <Card title={name} style={{ width: "100%" }}>
+      <p>Nhóm tuổi: {grade}</p>
+      <Link to={`/classes/${id}`}>
+        <Button type="primary">Chi tiết</Button>
+      </Link>
+    </Card>
   );
 };
 

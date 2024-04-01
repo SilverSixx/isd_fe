@@ -83,7 +83,7 @@ const CreateClass = ({
   return (
     <Modal
       title="Create New Class"
-      visible={true}
+      open={true}
       onCancel={onCancel}
       footer={null}
     >

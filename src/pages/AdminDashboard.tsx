@@ -1,11 +1,17 @@
 import React from "react";
-import { TeamOutlined, HomeOutlined, LogoutOutlined } from "@ant-design/icons";
+import {
+  TeamOutlined,
+  HomeOutlined,
+  LogoutOutlined,
+  CoffeeOutlined,
+} from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { Layout, Menu, theme, Button } from "antd";
 import ClassTab from "../components/admin/dashboardTabs/ClassTab";
 import TeacherTab from "../components/admin/dashboardTabs/TeacherTab";
 import KidTab from "../components/admin/dashboardTabs/KidTab";
 import ParentTab from "../components/admin/dashboardTabs/ParentTab";
+import FoodTab from "../components/admin/dashboardTabs/FoodTab";
 import SharedFooter from "../components/share/SharedFooter";
 
 const { Header, Content, Footer, Sider } = Layout;
@@ -15,6 +21,7 @@ const items: MenuProps["items"] = [
   { key: "2", icon: <TeamOutlined />, label: "Teachers" },
   { key: "3", icon: <TeamOutlined />, label: "Kids" },
   { key: "4", icon: <TeamOutlined />, label: "Parents" },
+  { key: "5", icon: <CoffeeOutlined />, label: "Foods" },
 ];
 
 const AdminDashboard: React.FC = () => {
@@ -56,7 +63,7 @@ const AdminDashboard: React.FC = () => {
           type="primary"
           icon={<LogoutOutlined />}
           onClick={() => {}}
-          style={{ marginLeft: 30, marginTop: 530 }}
+          style={{ marginLeft: 30, marginTop: 500 }}
         >
           Logout
         </Button>
@@ -86,6 +93,8 @@ const AdminDashboard: React.FC = () => {
           {activeTab === "3" && <KidTab />}
 
           {activeTab === "4" && <ParentTab />}
+
+          {activeTab === "5" && <FoodTab />}
         </Content>
         <SharedFooter place="admin" />
       </Layout>
