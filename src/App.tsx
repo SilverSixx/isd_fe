@@ -47,10 +47,10 @@ const App: React.FC = () => {
       <Router>
         <Routes>
           <Route path="/" element={<LoginPage />} />
-          <Route path="/home" element={<HomeRoute />} />
+          <Route path="/home" element={<LandingPage />} />
           <Route path="/classes" element={<MyClasses />} />
           <Route path="/classes/:classId" element={<ClassDetailPage />} />
-          <Route path="/admin" element={<AdminRoute />} />
+          <Route path="/admin" element={<AdminDashboard />} />
         </Routes>
       </Router>
     </LoginProvider>

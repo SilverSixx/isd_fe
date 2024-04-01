@@ -66,7 +66,7 @@ const MyClassesPage: React.FC = () => {
       />
       <SharedHeader place={"classPage"} />
       <Content style={{ padding: "64px", position: "absolute" }}>
-        <div style={{ alignItems: "center", width: "91vw" }}>
+        <div style={{ alignItems: "center", width: "90vw" }}>
           <Title
             level={2}
             style={{ textAlign: "center", color: "white", fontWeight: "bold" }}

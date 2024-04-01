@@ -63,7 +63,7 @@ const AdminDashboard: React.FC = () => {
           type="primary"
           icon={<LogoutOutlined />}
           onClick={() => {}}
-          style={{ marginLeft: 30, marginTop: 500 }}
+          style={{ marginLeft: 30, marginTop: 330 }}
         >
           Logout
         </Button>
