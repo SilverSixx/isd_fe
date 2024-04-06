@@ -26,9 +26,6 @@ const CreateTeacher = ({
             Authorization: `Bearer ${token}`,
           },
         });
-        if (!response.ok) {
-          throw new Error("Failed to fetch class data");
-        }
         const res = await response.json();
         setClassesToAdd(res.data);
       } catch (error) {
@@ -65,16 +62,16 @@ const CreateTeacher = ({
           messageApi.error(data?.message);
         }
       } else {
-        messageApi.error("Bad credentials.");
+        messageApi.error("Không thể tạo mới giáo viên. Vui lòng thử lại.");
       }
     } catch (error) {
-      messageApi.error("Error when calling API to backend service.");
+      messageApi.error("Không thể kết nối đến server. Vui lòng thử lại.");
     }
   };
 
   return (
     <Modal
-      title="Create New Teacher"
+      title="Tạo mới giáo viên"
       open={true}
       onCancel={onCancel}
       footer={null}
@@ -82,27 +79,33 @@ const CreateTeacher = ({
       {contextHolder}
       <Form form={form} layout="vertical" onFinish={handleOnSubmit}>
         <Form.Item
-          label="Name:"
+          label="Họ và tên:"
           name="fullName"
-          rules={[{ required: true, message: "Please enter a full name" }]}
+          rules={[
+            { required: true, message: "Trường này không được để trống" },
+          ]}
         >
           <Input />
         </Form.Item>
         <Form.Item
-          label="Username:"
+          label="Tên đăng nhập:"
           name="username"
-          rules={[{ required: true, message: "Please enter an username" }]}
+          rules={[
+            { required: true, message: "Trường này không được để trống" },
+          ]}
         >
           <Input />
         </Form.Item>
         <Form.Item
-          label="Password:"
+          label="Mật khẩu:"
           name="password"
-          rules={[{ required: true, message: "Please enter a password" }]}
+          rules={[
+            { required: true, message: "Trường này không được để trống" },
+          ]}
         >
           <Input.Password />
         </Form.Item>
-        <Form.Item label="Classes" name="classes">
+        <Form.Item label="Danh sách lớp phụ trách" name="classes">
           <Select
             showSearch
             mode="multiple"
@@ -117,7 +120,7 @@ const CreateTeacher = ({
         </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit">
-            Create
+            Xác nhận
           </Button>
         </Form.Item>
       </Form>

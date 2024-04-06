@@ -44,20 +44,21 @@ const TeacherTab: React.FC = () => {
 
   const columns = [
     {
-      title: "Full Name",
+      title: "Họ và tên",
       dataIndex: "fullName",
       key: "name",
     },
     {
-      title: "Username",
+      title: "Tên đăng nhập",
       dataIndex: "username",
       key: "username",
     },
     {
-      title: "Classes",
+      title: "Danh sách lớp phụ trách",
       dataIndex: "classes",
       key: "classes",
-      render: (classes: any[]) => (c => c.map((c: any) => c.name).join(", "))(classes)
+      render: (classes: any[]) =>
+        ((c) => c.map((c: any) => c.name).join(", "))(classes),
     },
     {
       title: "",
@@ -70,7 +71,7 @@ const TeacherTab: React.FC = () => {
             style={{ marginRight: 10 }}
             onClick={() => handleEditClick(record)}
           >
-            Edit
+            Chỉnh sửa
           </Button>
         </div>
       ),
@@ -98,13 +99,13 @@ const TeacherTab: React.FC = () => {
   const handleCreateSuccess = () => {
     setIsCreateModalVisible(false);
     setKeyForRemount(keyForRemount + 1);
-  }
+  };
 
   const onUpdateSuccess = () => {
     setIsEditing(false);
     setSelectedTeacher(null);
     setKeyForRemount(keyForRemount + 1);
-  }
+  };
 
   return (
     <>
@@ -115,7 +116,7 @@ const TeacherTab: React.FC = () => {
             onClick={handleCreateNewTeacher}
             style={{ marginBottom: "10px" }}
           >
-            Create New Teacher
+            Tạo giáo viên mới
           </Button>
           <Table
             dataSource={teacherData.slice(

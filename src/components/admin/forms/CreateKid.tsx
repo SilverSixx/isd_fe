@@ -93,39 +93,45 @@ const CreateKid = ({
           message.error(data?.message);
         }
       } else {
-        message.error("Bad credentials.");
+        message.error("Lỗi khi tạo mới thông tin trẻ.");
       }
     } catch (error) {
-      message.error("Error when calling API to backend service.");
+      message.error("Lỗi khi tạo mới thông tin trẻ. Vui lòng thử lại.");
     }
   };
 
   return (
-    <Modal title="Create New Kid" open={true} onCancel={onCancel} footer={null}>
+    <Modal title="Thêm mới trẻ" open={true} onCancel={onCancel} footer={null}>
       {contextHolder}
       <Form form={form} layout="vertical" onFinish={handleOnSubmit}>
         <Form.Item
-          label="Full name:"
+          label="Họ và tên:"
           name="name"
-          rules={[{ required: true, message: "Please enter full name" }]}
+          rules={[
+            { required: true, message: "Trường này không được để trống" },
+          ]}
         >
           <Input />
         </Form.Item>
         <Form.Item
-          label="Nickname:"
-          name="nickname"
-          rules={[{ required: true, message: "Please enter a nickname" }]}
+          label="Tên thường gọi:"
+          name="nickName"
+          rules={[
+            { required: true, message: "Trường này không được để trống" },
+          ]}
         >
           <Input />
         </Form.Item>
         <Form.Item
-          label="Date of birth:"
+          label="Ngày sinh:"
           name="dob"
-          rules={[{ required: true, message: "Please enter date of birth" }]}
+          rules={[
+            { required: true, message: "Trường này không được để trống" },
+          ]}
         >
           <DatePicker format="YYYY-MM-DD" />
         </Form.Item>
-        <Form.Item label="Parent Name:" name="parentId">
+        <Form.Item label="Tên phụ huynh:" name="parentId">
           <Select
             showSearch
             filterOption={(inputValue, option) =>
@@ -154,7 +160,7 @@ const CreateKid = ({
             }))}
           />
         </Form.Item>
-        <Form.Item label="Class" name="classId">
+        <Form.Item label="Lớp học" name="classId">
           <Select
             showSearch
             filterOption={(inputValue, option) =>
@@ -164,13 +170,13 @@ const CreateKid = ({
             }
             options={classesToAssign.map((classItem) => ({
               value: classItem.id,
-              label: `${classItem.name} - Grade ${classItem.grade}`,
+              label: `${classItem.name} - Khối ${classItem.grade}`,
             }))}
           />
         </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit">
-            Create
+            Xác nhận
           </Button>
         </Form.Item>
       </Form>

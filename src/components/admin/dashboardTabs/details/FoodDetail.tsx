@@ -105,7 +105,7 @@ const FoodDetail: React.FC<FoodDetailProps> = ({
     <>
       {contextHolder}
       <Button danger onClick={onCancel}>
-        Cancel
+        Quay lại
       </Button>
 
       <Form
@@ -168,10 +168,10 @@ const FoodDetail: React.FC<FoodDetailProps> = ({
         </Form.Item>
         <Form.Item wrapperCol={{ offset: 6, span: 12 }}>
           <Button type="primary" htmlType="submit">
-            Update
+            Cập nhật
           </Button>
           <Button danger onClick={handleDelete} style={{ marginLeft: "8px" }}>
-            Delete
+            Xóa món ăn này
           </Button>
         </Form.Item>
       </Form>

@@ -40,17 +40,17 @@ const KidTab: React.FC = () => {
 
   const columns = [
     {
-      title: "Full Name",
+      title: "Họ và tên",
       dataIndex: "fullName",
       key: "name",
     },
     {
-      title: "Nickname",
+      title: "Tên thường gọi",
       dataIndex: "nickName",
       key: "nickname",
     },
     {
-      title: "Age",
+      title: "Tuổi",
       dataIndex: "dob",
       key: "dob",
       render: (dob: string) => {
@@ -60,12 +60,12 @@ const KidTab: React.FC = () => {
       },
     },
     {
-      title: "Class",
+      title: "Lớp",
       dataIndex: ["classBelongsTo", "name"],
       key: "classBelongsTo",
     },
     {
-      title: "Grade",
+      title: "Khối",
       dataIndex: ["classBelongsTo", "grade"],
       key: "gradeBelongsTo",
     },
@@ -82,7 +82,7 @@ const KidTab: React.FC = () => {
       ),
     },
     {
-      title: "Parent",
+      title: "Tên phụ huynh",
       dataIndex: ["parent", "fullName"],
       key: "parent",
     },
@@ -97,7 +97,7 @@ const KidTab: React.FC = () => {
             style={{ marginRight: 10 }}
             onClick={() => handleEdit(record)}
           >
-            Edit
+            Chỉnh sửa
           </Button>
         </div>
       ),
@@ -109,8 +109,6 @@ const KidTab: React.FC = () => {
   };
 
   const handleEdit = (record: any) => {
-    console.log("Editing kid:", record);
-
     setSelectedKid(record);
     setIsEditing(true);
   };
@@ -123,7 +121,6 @@ const KidTab: React.FC = () => {
   const handleCreateNewKid = () => {
     setIsCreateModalVisible(true);
   };
-
   const handleCreateKidCancel = () => {
     setIsCreateModalVisible(false);
   };
@@ -148,7 +145,7 @@ const KidTab: React.FC = () => {
             onClick={handleCreateNewKid}
             style={{ marginBottom: "10px" }}
           >
-            Create New Kid
+            Tạo mới trẻ
           </Button>
           <Table
             dataSource={kidsData.slice(

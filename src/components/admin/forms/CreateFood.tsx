@@ -57,10 +57,10 @@ const CreateFood = ({
           messageApi.error(data?.message);
         }
       } else {
-        messageApi.error("Bad credentials.");
+        messageApi.error("Lỗi khi thêm món ăn mới.");
       }
     } catch (error) {
-      messageApi.error("Error when calling API to backend service.");
+      messageApi.error("Lỗi khi thêm món ăn mới.");
     }
   };
 
@@ -112,7 +112,7 @@ const CreateFood = ({
         </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit">
-            Create
+            Xác nhận
           </Button>
         </Form.Item>
       </Form>

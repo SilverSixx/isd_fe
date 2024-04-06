@@ -61,7 +61,7 @@ const TeacherDetail: React.FC<TeacherDetailProps> = ({
           body: JSON.stringify(values),
         }
       );
-      const res = await response.json();      
+      const res = await response.json();
       if (!res.error) {
         messageApi.success(res?.message);
         setTimeout(() => {
@@ -71,13 +71,12 @@ const TeacherDetail: React.FC<TeacherDetailProps> = ({
         messageApi.error(res?.message);
       }
     } catch (error) {
-      messageApi.error("Error updating teacher");
+      messageApi.error("Lỗi khi cập nhật giáo viên");
     }
   };
 
   const handleDelete = async () => {
     try {
-
       const token = LoginCtx.authToken || localStorage.getItem("authToken");
       const response = await fetch(
         BASE_BACKEND_URL + `/teacher/delete/${item.id}`,
@@ -87,7 +86,6 @@ const TeacherDetail: React.FC<TeacherDetailProps> = ({
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          
         }
       );
       const res = await response.json();
@@ -100,7 +98,7 @@ const TeacherDetail: React.FC<TeacherDetailProps> = ({
         messageApi.error(res?.message);
       }
     } catch (error) {
-      messageApi.error("Error deleting teacher");
+      messageApi.error("Lỗi khi xóa giáo viên");
     }
   };
 
@@ -113,7 +111,7 @@ const TeacherDetail: React.FC<TeacherDetailProps> = ({
 
       <Form
         onFinish={handleUpdate}
-        labelCol={{ span: 6 }}
+        labelCol={{ span: 8 }}
         wrapperCol={{ span: 14 }}
         form={form}
         style={{
@@ -129,28 +127,28 @@ const TeacherDetail: React.FC<TeacherDetailProps> = ({
         }}
       >
         <Form.Item
-          label="Name"
+          label="Họ và tên:"
           name="fullName"
           rules={[{ required: true, message: "Please enter a name" }]}
         >
           <Input placeholder={`${item.fullName}`} />
         </Form.Item>
         <Form.Item
-          label="Username"
+          label="Tên đăng nhập:"
           name="username"
           rules={[{ required: true, message: "Please enter an username" }]}
         >
           <Input placeholder={`${item.username}`} />
         </Form.Item>
         <Form.Item
-          label="Password"
+          label="Mật khẩu:"
           name="password"
           rules={[{ required: true, message: "Please enter a password" }]}
         >
           <Input placeholder={`${item.password}`} />
         </Form.Item>
         <Form.Item
-          label="Classes"
+          label="Danh sách lớp phụ trách:"
           name="classIds"
           rules={[
             { required: true, message: "Please select at least 1 class" },
@@ -174,12 +172,12 @@ const TeacherDetail: React.FC<TeacherDetailProps> = ({
             }))}
           />
         </Form.Item>
-        <Form.Item wrapperCol={{ offset: 6, span: 12 }}>
+        <Form.Item wrapperCol={{ offset: 8, span: 12 }}>
           <Button type="primary" htmlType="submit">
-            Update
+            Cập nhật
           </Button>
           <Button danger onClick={handleDelete} style={{ marginLeft: "8px" }}>
-            Delete
+            Xóa giáo viên này
           </Button>
         </Form.Item>
       </Form>

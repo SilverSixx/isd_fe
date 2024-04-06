@@ -22,7 +22,7 @@ const SharedFooter: React.FC<SharedFooterProps> = ({ place }) => {
         background: "transparent",
       }}
     >
-      Mam Non Binh Minh ©{new Date().getFullYear()} Created by dat.pl
+      Mam Non Binh Minh ©{new Date().getFullYear()}
     </Footer>
   );
 };

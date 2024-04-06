@@ -37,22 +37,22 @@ const ParentTab: React.FC = () => {
 
   const columns = [
     {
-      title: "Name",
+      title: "Họ và tên",
       dataIndex: "fullName",
       key: "name",
     },
     {
-      title: "Username",
+      title: "Tên đăng nhập",
       dataIndex: "username",
       key: "username",
     },
     {
-      title: "Kid Name",
+      title: "Tên trẻ",
       dataIndex: ["kid", "fullName"],
       key: "kidName",
     },
     {
-      title: "Kid Nickname",
+      title: "Tên thường gọi của trẻ",
       dataIndex: ["kid", "nickName"],
       key: "kidNickname",
     },
@@ -62,7 +62,7 @@ const ParentTab: React.FC = () => {
       render: (record: any) => (
         <div style={{ display: "flex", justifyContent: "flex-end" }}>
           <Button danger size="middle" onClick={() => handleDelelte(record.id)}>
-            Delete
+            Xóa
           </Button>
         </div>
       ),
@@ -106,7 +106,7 @@ const ParentTab: React.FC = () => {
         message.error(data?.message);
       }
     } catch (error) {
-      message.error("Can not delete parent.");
+      message.error("Lỗi khi xóa phụ huynh. Vui lòng thử lại.");
     }
   };
 
@@ -120,7 +120,7 @@ const ParentTab: React.FC = () => {
             onClick={handleCreateNew}
             style={{ marginBottom: "10px" }}
           >
-            Create New Parent
+            Thêm mới phụ huynh
           </Button>
           <Table
             dataSource={parentData.slice(

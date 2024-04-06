@@ -142,7 +142,7 @@ const KidDetail: React.FC<KidDetailProps> = ({
     <>
       {contextHolder}
       <Button danger onClick={onCancel}>
-        Cancel
+        Quay lại
       </Button>
       <Form
         onFinish={handleUpdate}
@@ -162,23 +162,29 @@ const KidDetail: React.FC<KidDetailProps> = ({
         }}
       >
         <Form.Item
-          label="Full Name"
+          label="Họ và tên"
           name="name"
-          rules={[{ required: true, message: "Please enter a full name" }]}
+          rules={[
+            { required: true, message: "Trường này không được để trống" },
+          ]}
         >
           <Input placeholder={`${item.fullName}`} />
         </Form.Item>
         <Form.Item
-          label="Nickname"
+          label="Tên thường gọi"
           name="nickName"
-          rules={[{ required: true, message: "Please enter a nickname" }]}
+          rules={[
+            { required: true, message: "Trường này không được để trống" },
+          ]}
         >
           <Input placeholder={`${item.nickName}`} />
         </Form.Item>
         <Form.Item
-          label="Date of Birth"
+          label="Ngày sinh"
           name="dob"
-          rules={[{ required: true, message: "Please enter a date of birth" }]}
+          rules={[
+            { required: true, message: "Trường này không được để trống" },
+          ]}
         >
           <DatePicker placeholder={`${item.dob.substring(0, 10)}`} />
         </Form.Item>
@@ -202,10 +208,10 @@ const KidDetail: React.FC<KidDetailProps> = ({
           />
         </Form.Item>
         <Form.Item
-          label="Classes"
+          label="Lớp học"
           name="classId"
           rules={[
-            { required: true, message: "Please select at least 1 class" },
+            { required: true, message: "Trường này không được để trống" },
           ]}
         >
           <Select
@@ -224,7 +230,9 @@ const KidDetail: React.FC<KidDetailProps> = ({
         <Form.Item
           label="Phụ Huynh"
           name="parentId"
-          rules={[{ required: true, message: "Please select a teacher" }]}
+          rules={[
+            { required: true, message: "Trường này không được để trống" },
+          ]}
         >
           <Select
             showSearch
@@ -246,10 +254,10 @@ const KidDetail: React.FC<KidDetailProps> = ({
 
         <Form.Item wrapperCol={{ offset: 6, span: 12 }}>
           <Button type="primary" htmlType="submit">
-            Update
+            Cập nhật
           </Button>
           <Button danger onClick={handleDelete} style={{ marginLeft: "8px" }}>
-            Delete
+            Xóa trẻ này
           </Button>
         </Form.Item>
       </Form>

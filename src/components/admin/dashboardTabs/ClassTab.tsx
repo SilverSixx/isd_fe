@@ -68,26 +68,26 @@ const ClassTab: React.FC = () => {
     setIsEditing(false);
     setSelectedClass(null);
     setKeyForRemount(keyForRemount + 1);
-  }
+  };
 
   const columns = [
     {
-      title: "Name",
+      title: "Tên lớp",
       dataIndex: "name",
       key: "name",
     },
     {
-      title: "Grade",
+      title: "Tuổi",
       dataIndex: "grade",
       key: "grade",
     },
     {
-      title: "Teacher",
+      title: "Giáo viên phụ trách",
       dataIndex: ["teacher", "fullName"],
       key: "teacher",
     },
     {
-      title: "Kids",
+      title: "Số trẻ trong lớp",
       dataIndex: "kids",
       key: "kids",
       render: (kids: any[]) => kids?.length || 0,
@@ -102,7 +102,7 @@ const ClassTab: React.FC = () => {
             size="middle"
             onClick={() => handleEdit(record)}
           >
-            Edit
+            Chỉnh sửa
           </Button>
         </div>
       ),
@@ -118,7 +118,7 @@ const ClassTab: React.FC = () => {
             onClick={handleCreateNewClass}
             style={{ marginBottom: "10px" }}
           >
-            Create New Class
+            Tạo lớp mới
           </Button>
           <Table
             dataSource={classData.slice(

@@ -28,6 +28,8 @@ const LoginPage: React.FC = () => {
         body: JSON.stringify(values),
       });
 
+      console.log("response", response);
+
       if (response.ok) {
         const res = await response.json();
         const user = {
@@ -54,10 +56,10 @@ const LoginPage: React.FC = () => {
           messageApi.error(res?.message);
         }
       } else {
-        messageApi.error("Bad credentials.");
+        messageApi.error("Sai tên đăng nhập hoặc mật khẩu. Vui lòng thử lại.");
       }
     } catch (error) {
-      messageApi.error("Erorr when calling API to backend service.");
+      messageApi.error("Lỗi mạng. Vui lòng thử lại.");
     }
   };
 
@@ -85,7 +87,7 @@ const LoginPage: React.FC = () => {
 
         <Form
           name="basic"
-          labelCol={{ span: 6 }}
+          labelCol={{ span: 8 }}
           wrapperCol={{ span: 14 }}
           onFinish={onFinish}
           autoComplete="off"
@@ -108,22 +110,22 @@ const LoginPage: React.FC = () => {
           }}
         >
           <Form.Item
-            label="Username"
+            label="Tên đăng nhập"
             name="username"
-            rules={[{ required: true, message: "Please input your username!" }]}
+            rules={[{ required: true, message: "Bạn phải nhập tên đăng nhập" }]}
           >
             <Input />
           </Form.Item>
           <Form.Item
-            label="Password"
+            label="Mật khẩu"
             name="password"
-            rules={[{ required: true, message: "Please input your password!" }]}
+            rules={[{ required: true, message: "Bạn phải nhập mật khẩu" }]}
           >
             <Input.Password />
           </Form.Item>
-          <Form.Item wrapperCol={{ offset: 6, span: 12 }}>
+          <Form.Item wrapperCol={{ offset: 8, span: 12 }}>
             <Button type="primary" htmlType="submit">
-              Login
+              Đăng nhập
             </Button>
           </Form.Item>
         </Form>

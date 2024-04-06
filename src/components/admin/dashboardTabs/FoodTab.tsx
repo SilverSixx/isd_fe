@@ -30,8 +30,6 @@ const FoodTab: React.FC = () => {
           },
         });
         const res = await response.json();
-        console.log("res.data", res.data);
-
         setFoodData(res.data);
       } catch (error) {
         console.error("Error fetching teacher data:", error);
@@ -101,7 +99,7 @@ const FoodTab: React.FC = () => {
             style={{ marginRight: 10 }}
             onClick={() => handleEditClick(record)}
           >
-            Edit
+            Chỉnh sửa
           </Button>
         </div>
       ),

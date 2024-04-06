@@ -6,22 +6,26 @@ import {
   CoffeeOutlined,
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
-import { Layout, Menu, theme, Button } from "antd";
+import { Layout, Menu, theme, Button, message } from "antd";
 import ClassTab from "../components/admin/dashboardTabs/ClassTab";
 import TeacherTab from "../components/admin/dashboardTabs/TeacherTab";
 import KidTab from "../components/admin/dashboardTabs/KidTab";
 import ParentTab from "../components/admin/dashboardTabs/ParentTab";
 import FoodTab from "../components/admin/dashboardTabs/FoodTab";
 import SharedFooter from "../components/share/SharedFooter";
+import { LoginContext } from "../context/LoginContext";
+import { useNavigate } from "react-router-dom";
+
 
 const { Header, Content, Footer, Sider } = Layout;
+const BASE_BACKEND_URL = "http://localhost:8080/api/v1";
 
 const items: MenuProps["items"] = [
-  { key: "1", icon: <HomeOutlined />, label: "Classes" },
-  { key: "2", icon: <TeamOutlined />, label: "Teachers" },
-  { key: "3", icon: <TeamOutlined />, label: "Kids" },
-  { key: "4", icon: <TeamOutlined />, label: "Parents" },
-  { key: "5", icon: <CoffeeOutlined />, label: "Foods" },
+  { key: "1", icon: <HomeOutlined />, label: "Lớp học" },
+  { key: "2", icon: <TeamOutlined />, label: "Giáo viên" },
+  { key: "3", icon: <TeamOutlined />, label: "Trẻ" },
+  { key: "4", icon: <TeamOutlined />, label: "Phụ huynh" },
+  { key: "5", icon: <CoffeeOutlined />, label: "Thực đơn" },
 ];
 
 const AdminDashboard: React.FC = () => {
@@ -29,14 +33,57 @@ const AdminDashboard: React.FC = () => {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
+  const LoginCtx = React.useContext(LoginContext);
+  const [messageApi, contextHolder] = message.useMessage();
+  const navigate = useNavigate();
+
   const [activeTab, setActiveTab] = React.useState<string>("1");
 
   const handleMenuClick = (key: React.Key) => {
     setActiveTab(String(key));
   };
 
+  const handleLogout = async () => {
+    try {
+      const response = await fetch(BASE_BACKEND_URL + "/auth/logout", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LoginCtx.authToken}`,
+        },
+      });
+
+      if (response.ok) {
+        const res = await response.json();
+        messageApi.success(res.message);
+        setTimeout(() => {
+          // Clear user data from local storage
+          localStorage.removeItem("authToken");
+          localStorage.removeItem("user");
+          localStorage.removeItem("isLoggedIn");
+
+          // Clear user data from context
+          LoginCtx.setIsLoggedIn(false);
+          LoginCtx.setUser({
+            username: "",
+            role: "",
+          });
+          LoginCtx.setAuthToken("");
+
+          navigate("/");
+        }, 3500);
+      } else {
+        // Handle errors if any
+        messageApi.error("Đăng xuất không thành công. Vui lòng thử lại.");
+      }
+    } catch (error) {
+      // Handle network errors
+      messageApi.error("Lỗi mạng. Vui lòng thử lại.");
+    }
+  };
+
   return (
     <Layout hasSider>
+      {contextHolder}
       <Sider
         style={{
           overflow: "auto",
@@ -62,10 +109,10 @@ const AdminDashboard: React.FC = () => {
         <Button
           type="primary"
           icon={<LogoutOutlined />}
-          onClick={() => {}}
+          onClick={handleLogout}
           style={{ marginLeft: 30, marginTop: 500 }}
         >
-          Logout
+          Đăng xuất
         </Button>
       </Sider>
       <Layout style={{ marginLeft: 190 }}>
@@ -77,7 +124,7 @@ const AdminDashboard: React.FC = () => {
             fontWeight: "bold",
           }}
         >
-          Admin Dashboard for Kinder Garten System
+          Trang quản trị viên
         </Header>
         <Content
           style={{

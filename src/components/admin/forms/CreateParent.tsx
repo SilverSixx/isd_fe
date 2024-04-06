@@ -57,16 +57,17 @@ const CreateParent = ({
           messageApi.error(data?.message);
         }
       } else {
-        messageApi.error("Bad credentials.");
+        messageApi.error("lỗi khi thêm phụ huynh mới.");
       }
     } catch (error) {
-      messageApi.error("Error when calling API to backend service.");
+      console.log("Lỗi", error);
+      
     }
   };
 
   return (
     <Modal
-      title="Create New Parent"
+      title="Thêm mới phụ huynh"
       open={true}
       onCancel={onCancel}
       footer={null}
@@ -74,27 +75,33 @@ const CreateParent = ({
       {contextHolder}
       <Form form={form} layout="vertical" onFinish={handleOnSubmit}>
         <Form.Item
-          label="Name:"
+          label="Họ và tên:"
           name="fullName"
-          rules={[{ required: true, message: "Please enter a full name" }]}
+          rules={[
+            { required: true, message: "Trường này không được để trống" },
+          ]}
         >
           <Input />
         </Form.Item>
         <Form.Item
-          label="Username:"
+          label="Tên đăng nhập:"
           name="username"
-          rules={[{ required: true, message: "Please enter an username" }]}
+          rules={[
+            { required: true, message: "Trường này không được để trống" },
+          ]}
         >
           <Input />
         </Form.Item>
         <Form.Item
-          label="Password:"
+          label="Mật khẩu:"
           name="password"
-          rules={[{ required: true, message: "Please enter a password" }]}
+          rules={[
+            { required: true, message: "Trường này không được để trống" },
+          ]}
         >
           <Input type="password" />
         </Form.Item>
-        <Form.Item label="Kid:" name="kidId">
+        <Form.Item label="Trẻ:" name="kidId">
           <Select
             showSearch
             value={kidToAdd.map((k) => k.id)}
@@ -113,7 +120,7 @@ const CreateParent = ({
         </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit">
-            Create
+            Xác nhận
           </Button>
         </Form.Item>
       </Form>

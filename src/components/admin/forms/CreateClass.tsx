@@ -73,33 +73,32 @@ const CreateClass = ({
           message.error(data?.message);
         }
       } else {
-        message.error("Bad credentials.");
+        message.error("Lỗi khi tạo lớp học.");
       }
     } catch (error) {
-      message.error("Error when calling API to backend service.");
+      message.error("Lỗi khi tạo lớp học.");
     }
   };
 
   return (
-    <Modal
-      title="Create New Class"
-      open={true}
-      onCancel={onCancel}
-      footer={null}
-    >
+    <Modal title="Tạo lớp học" open={true} onCancel={onCancel} footer={null}>
       {contextHolder}
       <Form form={form} layout="vertical" onFinish={handleOnSubmit}>
         <Form.Item
-          label="Name:"
+          label="Tên lớp:"
           name="name"
-          rules={[{ required: true, message: "Please enter a name" }]}
+          rules={[
+            { required: true, message: "Trường này không được để trống" },
+          ]}
         >
           <Input />
         </Form.Item>
         <Form.Item
-          label="Grade:"
+          label="Tuổi:"
           name="grade"
-          rules={[{ required: true, message: "Please select a grade" }]}
+          rules={[
+            { required: true, message: "Trường này không được để trống" },
+          ]}
         >
           <Select>
             {Array.from({ length: 4 }, (_, i) => i + 2).map((value) => (
@@ -110,9 +109,11 @@ const CreateClass = ({
           </Select>
         </Form.Item>
         <Form.Item
-          label="Incharged Teacher:"
+          label="Giáo viên phụ trách:"
           name="teacherId"
-          rules={[{ required: true, message: "Please select a teacher" }]}
+          rules={[
+            { required: true, message: "Trường này không được để trống" },
+          ]}
         >
           <Select
             showSearch
@@ -130,9 +131,11 @@ const CreateClass = ({
           </Select>
         </Form.Item>
         <Form.Item
-          label="Kids:"
+          label="Trẻ trong lớp này:"
           name="kidIds"
-          rules={[{ required: true, message: "Please select kids" }]}
+          rules={[
+            { required: true, message: "Trường này phải chọn tối thiểu 1" },
+          ]}
         >
           <Select
             showSearch
@@ -154,7 +157,7 @@ const CreateClass = ({
         </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit">
-            Create
+            Xác nhận
           </Button>
         </Form.Item>
       </Form>

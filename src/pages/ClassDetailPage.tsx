@@ -1,149 +1,208 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   Layout,
   Card,
   Table,
-  Input,
+  Select,
   Button,
   Space,
   Typography,
-  Divider,
+  Form,
   Row,
   Col,
   Image,
+  message,
 } from "antd";
-import { LoadingOutlined } from "@ant-design/icons";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import SharedHeader from "../components/share/SharedHeader";
 import SharedFooter from "../components/share/SharedFooter";
+import { LoginContext } from "../context/LoginContext";
 
 const { Content } = Layout;
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
-const classDataPlaceholder = {
-  id: null,
-  name: "Cánh diều",
-  schedule: [
-    {
-      day: "Mon",
-      shift: 1,
-      subject: "Math",
-    },
-    {
-      day: "Wed",
-      shift: 2,
-      subject: "Art",
-    },
-    {
-      day: "Fri",
-      shift: 3,
-      subject: "Language",
-    },
-  ],
-  kids: [
-    {
-      id: 1,
-      name: "Kid 1",
-      nickname: "Cún",
-      age: 5,
-      parentName: "Đạt",
-    },
-    {
-      id: 2,
-      name: "Kid 2",
-      nickname: "Miu",
-      age: 6,
-      parentName: "Chi",
-    },
-    {
-      id: 2,
-      name: "Kid 2",
-      nickname: "Miu",
-      age: 6,
-      parentName: "Chi",
-    },
-    {
-      id: 2,
-      name: "Kid 2",
-      nickname: "Miu",
-      age: 6,
-      parentName: "Chi",
-    },
-    {
-      id: 2,
-      name: "Kid 2",
-      nickname: "Miu",
-      age: 6,
-      parentName: "Chi",
-    },
-    {
-      id: 2,
-      name: "Kid 2",
-      nickname: "Miu",
-      age: 6,
-      parentName: "Chi",
-    },
-    {
-      id: 2,
-      name: "Kid 2",
-      nickname: "Miu",
-      age: 6,
-      parentName: "Chi",
-    },
-    {
-      id: 2,
-      name: "Kid 2",
-      nickname: "Miu",
-      age: 6,
-      parentName: "Chi",
-    },
-  ],
-};
-
-const menuFoodData = [
-  { id: 1, name: "Food 1", totalAmount: 100 },
-  { id: 2, name: "Food 2", totalAmount: 150 },
-  { id: 3, name: "Food 3", totalAmount: 200 },
-];
+const BASE_BACKEND_URL = "http://localhost:8080/api/v1";
+const ITEMS_PER_PAGE = 4;
 
 const ClassDetailPage: React.FC = () => {
-  const [classData, setClassData] = useState(classDataPlaceholder);
-  const [newKidName, setNewKidName] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [classData, setClassData] = useState<any>([]);
+  const [kidsToAdd, setKidsToAdd] = useState<any[]>([]);
+  const [menuFoodData, setMenuFoodData] = useState<any>([]);
+  const [newKidId, setnewKidId] = useState<any>(null);
+  const [messageApi, contextHolder] = message.useMessage();
+  const LoginCtx = useContext(LoginContext);
+  const [keyForRemount, setKeyForRemount] = useState(0);
   const { classId } = useParams();
+
+  const token = LoginCtx.authToken || localStorage.getItem("authToken");
 
   // Fetch class data based on classId:
   useEffect(() => {
-    const fetchClassData = async () => {
-      setIsLoading(true);
+    const fetchData = async () => {
       try {
-        // Replace with your actual API call
-        const response = await fetch(
-          `${process.env.BE_BASE_URL}/api/classes/${classId}`
+        const classResponse = await fetch(
+          BASE_BACKEND_URL + `/class/${classId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
-        const data = await response.json();
-        setClassData(data);
+        const classData = await classResponse.json();
+        setClassData(classData.data);
+
+        const foodResponse = await fetch(BASE_BACKEND_URL + `/food/all`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const foodData = await foodResponse.json();
+        setMenuFoodData(foodData.data);
+
+        const kidResponse = await fetch(BASE_BACKEND_URL + `/kid/all`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const kidData = await kidResponse.json();
+        setKidsToAdd(kidData.data);
       } catch (error) {
-        console.error("Error fetching class data:", error);
-        // Handle error gracefully, e.g., display an error message or redirect
-      } finally {
-        setIsLoading(false);
+        console.error("Error fetching data:", error);
       }
     };
 
-    fetchClassData();
-  }, [classId]);
+    fetchData();
+  }, [classId, token, keyForRemount]);
 
-  const addKid = () => {
-    if (!newKidName) return;
-    // Implement logic to add kid to the class (e.g., API call)
-    // Update state or display a success message upon successful addition
-    setNewKidName("");
+  const addKid = async () => {
+    if (!newKidId) {
+      messageApi.error("Vui lòng chọn trẻ để thêm vào lớp");
+      return;
+    }
+    const values = {
+      kidId: newKidId,
+      classId: classId,
+    };
+    try {
+      const response = await fetch(BASE_BACKEND_URL + `/kid/add-to-class`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(values),
+      });
+      const res = await response.json();
+      if (!res.error) {
+        messageApi.success(res?.message);
+        setKeyForRemount(keyForRemount + 1);
+      } else {
+        messageApi.error(res?.message);
+      }
+    } catch (error) {
+      console.error("Error kicking kid:", error);
+    }
+    setnewKidId(null);
+  };
+
+  const handleKick = async (kidId: string) => {
+    const values = {
+      kidId: kidId,
+      classId: classId,
+    };
+    try {
+      const response = await fetch(BASE_BACKEND_URL + `/kid/kick-from-class`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(values),
+      });
+      const res = await response.json();
+      if (!res.error) {
+        messageApi.success(res?.message);
+        setnewKidId(null);
+        setKeyForRemount(keyForRemount + 1);
+      } else {
+        messageApi.error(res?.message);
+      }
+    } catch (error) {
+      console.error("Error kicking kid:", error);
+    }
+  };
+
+  const columns = [
+    {
+      title: "Họ tên",
+      dataIndex: "fullName",
+      key: "name",
+    },
+    {
+      title: "Biệt danh",
+      dataIndex: "nickName",
+      key: "nickname",
+    },
+    {
+      title: "Tuổi",
+      dataIndex: "dob",
+      key: "dob",
+      render: (dob: string) => {
+        const today = new Date();
+        const birthYear = new Date(dob).getFullYear();
+        return today.getFullYear() - birthYear;
+      },
+    },
+    {
+      title: "Lớp",
+      key: "gradeBelongsTo",
+      render: () => <span>{classData.grade}</span>,
+    },
+    {
+      title: "Dị ứng với",
+      dataIndex: "allergyFoods",
+      key: "allergyFoods",
+      render: (allergyFoods: any) => (
+        <>
+          {allergyFoods.map((food: any) => (
+            <span>{food.name + ", "}</span>
+          ))}
+        </>
+      ),
+    },
+    {
+      title: "Phụ huynh",
+      dataIndex: ["parent", "fullName"],
+      key: "parent",
+    },
+    {
+      title: "",
+      key: "",
+      render: (record: any) => (
+        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+          <Button
+            danger
+            size="middle"
+            style={{ marginRight: 10 }}
+            onClick={() => {
+              handleKick(record.id);
+            }}
+          >
+            Xóa khỏi lớp
+          </Button>
+        </div>
+      ),
+    },
+  ];
+
+  const handleChangePage = (page: number) => {
+    setCurrentPage(page);
   };
 
   return (
     <Layout style={{ minHeight: "100vh", margin: -8 }}>
+      {contextHolder}
       <Image
         height={window.innerHeight - 1}
         preview={false}
@@ -174,102 +233,69 @@ const ClassDetailPage: React.FC = () => {
         }}
       >
         <div style={{ alignItems: "center", width: "100%" }}>
-          {isLoading ? (
-            <Card title="Loading Class Details...">
-              <LoadingOutlined style={{ fontSize: 24 }} />
-            </Card>
-          ) : (
-            <Card title={classDataPlaceholder.name}>
-              <Space
-                style={{
-                  width: "100%",
-                  justifyContent: "flex-end",
-                  padding: "20px 0",
-                }}
+          <Card
+            title={`Tên lớp: ${classData.name} - Giáo viên: ${classData?.teacher?.fullName}`}
+          >
+            <Space>
+              <Form.Item
+                label={`Trẻ được thêm vào lớp ${classData.name}`}
+                name="kidId"
               >
-                <Input.Search
-                  placeholder="Tên hoặc biệt danh của trẻ"
-                  value={newKidName}
-                  onChange={(e) => setNewKidName(e.target.value)}
-                  onPressEnter={addKid}
-                  style={{ width: 350 }}
-                  addonAfter={
-                    <Button
-                      type="primary"
-                      onClick={addKid}
-                      style={{ marginLeft: "16px" }}
-                    >
-                      Thêm
-                    </Button>
+                <Select
+                  showSearch
+                  filterOption={(inputValue, option) =>
+                    (option?.label?.toString()?.toLowerCase() || "").includes(
+                      inputValue.toLowerCase()
+                    )
                   }
-                />
-              </Space>
-              <Table dataSource={classDataPlaceholder.kids} pagination={false}>
-                <Table.Column title="Name" dataIndex="name" key="name" />
-                <Table.Column
-                  title="Nickname"
-                  dataIndex="nickname"
-                  key="nickname"
-                />
-                <Table.Column title="Age" dataIndex="age" key="age" />
-                <Table.Column
-                  title="ParentName"
-                  dataIndex="parentName"
-                  key="parentName"
-                />
-                <Table.Column
-                  title=""
-                  key="action"
-                  render={(record) => (
-                    <div
-                      style={{ display: "flex", justifyContent: "flex-end" }}
-                    >
-                      <Button danger size="middle">
-                        Xóa
-                      </Button>
-                    </div>
-                  )}
-                />
-              </Table>
+                  placeholder="Nhập tên trẻ ở đây..."
+                  onChange={(value) => {
 
-              <Title level={4}>Thực đơn và lưu ý cho những trẻ có dị ứng</Title>
-              <Row gutter={[16, 16]}>
-                <Col span={12}>
-                  <Card title="Menu">
-                    <div style={{ display: "flex", flexDirection: "row" }}>
-                      {menuFoodData.map((food) => (
-                        <div key={food.id} style={{ marginRight: 20 }}>
-                          <Text>{food.name}</Text>
-                        </div>
-                      ))}
-                    </div>
-                    <Divider />
-                    <div style={{ display: "flex", flexDirection: "column" }}>
-                      {menuFoodData.map((food) => (
-                        <div key={food.id} style={{ marginRight: 20 }}>
-                          {/* {food.allergyNotes && (
-                          <Text type="secondary">
-                            Notes: {food.allergyNotes}
-                          </Text>
-                        )} */}
-                        </div>
-                      ))}
-                    </div>
-                  </Card>
-                </Col>
-                <Col span={6}>
-                  <Card title="Định lượng tổng" style={{ marginBottom: 20 }}>
-                    {/* Render 'Định lượng tổng' data */}
-                  </Card>
-                </Col>
-                <Col span={6}>
-                  <Card title="Định lượng cá nhân" style={{ marginBottom: 20 }}>
-                    {/* Render 'Định lượng tổng' data */}
-                  </Card>
-                </Col>
-              </Row>
-            </Card>
-          )}
+                    setnewKidId(value);
+                  }}
+                  options={kidsToAdd.map((kid) => ({
+                    value: kid.id,
+                    label: ` ${kid.fullName} - Lớp: ${
+                      kid.classBelongsTo?.name || "Chưa có"
+                    }`,
+                  }))}
+                  style={{ minWidth: 300 }}
+                />
+              </Form.Item>
+              <Form.Item>
+                <Button type="primary" onClick={addKid}>
+                  Thêm
+                </Button>
+              </Form.Item>
+            </Space>
+            <Table
+              dataSource={classData?.kids?.slice(
+                (currentPage - 1) * ITEMS_PER_PAGE,
+                currentPage * ITEMS_PER_PAGE
+              )}
+              columns={columns}
+              rowKey="id"
+              pagination={{
+                onChange: handleChangePage,
+                current: currentPage,
+                pageSize: ITEMS_PER_PAGE,
+                total: classData?.kids?.length,
+              }}
+            />
+            <Row gutter={[16, 16]}>
+              <Col span={12}>
+                <Card title="Thực đơn">
+                  <div style={{ display: "flex", flexDirection: "row" }}>
+                    {menuFoodData.map((food: any) => (
+                      <div key={food.id} style={{ marginRight: 20 }}>
+                        <Text>{food.name}</Text>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              </Col>
+            </Row>
+          </Card>
         </div>
       </Content>
       <SharedFooter place="" />

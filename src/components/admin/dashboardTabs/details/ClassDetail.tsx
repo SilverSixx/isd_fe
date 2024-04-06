@@ -16,7 +16,11 @@ interface ClassDetailProps {
   onUpdateSuccess: () => void;
 }
 
-const ClassDetail: React.FC<ClassDetailProps> = ({ item, onCancel, onUpdateSuccess }) => {
+const ClassDetail: React.FC<ClassDetailProps> = ({
+  item,
+  onCancel,
+  onUpdateSuccess,
+}) => {
   const [teachersToAdd, setTeachersToAdd] = useState<any[]>([]);
   const [kidsToAdd, setKidsToAdd] = useState<any[]>([]);
   const LoginCtx = useContext(LoginContext);
@@ -50,8 +54,6 @@ const ClassDetail: React.FC<ClassDetailProps> = ({ item, onCancel, onUpdateSucce
         console.error("Error fetching data:", error);
       }
     };
-    console.log("Item:", item);
-
     fetchData();
   }, [item]);
 
@@ -83,10 +85,10 @@ const ClassDetail: React.FC<ClassDetailProps> = ({ item, onCancel, onUpdateSucce
           message.error(data?.message);
         }
       } else {
-        message.error("Can not update class.");
+        message.error("Không thể cập nhật thông tin lớp học.");
       }
     } catch (error) {
-      message.error("Error when calling API to backend service.");
+      message.error("Lỗi khi cập nhật thông tin lớp học.");
     }
   };
 
@@ -102,7 +104,6 @@ const ClassDetail: React.FC<ClassDetailProps> = ({ item, onCancel, onUpdateSucce
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          
         }
       );
 
@@ -117,10 +118,10 @@ const ClassDetail: React.FC<ClassDetailProps> = ({ item, onCancel, onUpdateSucce
           message.error(data?.message);
         }
       } else {
-        message.error("Can not delete class.");
+        message.error("Không thể xóa lớp học.");
       }
     } catch (error) {
-      message.error("Error when calling API to backend service.");
+      message.error("Lỗi khi xóa lớp học.");
     }
   };
 
@@ -128,7 +129,7 @@ const ClassDetail: React.FC<ClassDetailProps> = ({ item, onCancel, onUpdateSucce
     <>
       {contextHolder}
       <Button danger onClick={onCancel}>
-        Cancel
+        Quay lại
       </Button>
       <Form
         onFinish={handleUpdate}
@@ -148,28 +149,34 @@ const ClassDetail: React.FC<ClassDetailProps> = ({ item, onCancel, onUpdateSucce
         }}
       >
         <Form.Item
-          label="Name:"
+          label="Tên lớp:"
           name="name"
-          rules={[{ required: true, message: "Please enter the class name" }]}
+          rules={[
+            { required: true, message: "Trường này không được để trống" },
+          ]}
         >
           <Input placeholder={`${item.name}`} />
         </Form.Item>
         <Form.Item
-          label="Grade:"
+          label="Tuổi:"
           name="grade"
-          rules={[{ required: true, message: "Please enter the grade" }]}
+          rules={[
+            { required: true, message: "Trường này không được để trống" },
+          ]}
         >
           <Input placeholder={`${item.grade}`} />
         </Form.Item>
         <Form.Item
-          label="Incharged Teacher:"
+          label="Giáo viên phụ trách:"
           name="teacherId"
-          rules={[{ required: true, message: "Please select a teacher" }]}
+          rules={[
+            { required: true, message: "Trường này không được để trống" },
+          ]}
         >
           <Select
             showSearch // Enable searching
-            defaultValue={item.teacher.id}
-            placeholder="Please select a teacher"
+            defaultValue={item?.teacher?.id}
+            placeholder="Hãy chọn giáo viên phụ trách"
             filterOption={(inputValue, option) =>
               (option?.label?.toString()?.toLowerCase() || "").includes(
                 inputValue.toLowerCase()
@@ -178,15 +185,17 @@ const ClassDetail: React.FC<ClassDetailProps> = ({ item, onCancel, onUpdateSucce
             options={teachersToAdd.map((teacher) => ({
               value: teacher.id,
               label: teacher.fullName,
-              selected: item.teacher.id === teacher.id,
+              selected: item?.teacher?.id === teacher?.id,
             }))}
           />
         </Form.Item>
 
         <Form.Item
-          label="Kids:"
+          label="Trẻ trong lớp này:"
           name="kidIds"
-          rules={[{ required: true, message: "Please select kids" }]}
+          rules={[
+            { required: true, message: "Trường này phải chọn tối thiểu 1" },
+          ]}
         >
           <Select
             showSearch
@@ -197,7 +206,7 @@ const ClassDetail: React.FC<ClassDetailProps> = ({ item, onCancel, onUpdateSucce
                 inputValue.toLowerCase()
               )
             }
-            placeholder="Please select at least 1 kid"
+            placeholder="Hãy chọn trẻ trong lớp này"
             // Set default selected kids based on item prop
             options={kidsToAdd.map((kid) => ({
               value: kid.id,
@@ -211,10 +220,10 @@ const ClassDetail: React.FC<ClassDetailProps> = ({ item, onCancel, onUpdateSucce
 
         <Form.Item wrapperCol={{ offset: 6, span: 12 }}>
           <Button type="primary" htmlType="submit">
-            Update
+            Câp nhật
           </Button>
           <Button danger onClick={handleDelete} style={{ marginLeft: "8px" }}>
-            Delete
+            Xóa lớp học này
           </Button>
         </Form.Item>
       </Form>
