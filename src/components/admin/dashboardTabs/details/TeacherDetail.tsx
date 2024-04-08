@@ -106,7 +106,7 @@ const TeacherDetail: React.FC<TeacherDetailProps> = ({
     <>
       {contextHolder}
       <Button danger onClick={onCancel}>
-        Cancel
+        Quay lại
       </Button>
 
       <Form
@@ -129,21 +129,27 @@ const TeacherDetail: React.FC<TeacherDetailProps> = ({
         <Form.Item
           label="Họ và tên:"
           name="fullName"
-          rules={[{ required: true, message: "Please enter a name" }]}
+          rules={[
+            { required: true, message: "Trường này không được để trống" },
+          ]}
         >
           <Input placeholder={`${item.fullName}`} />
         </Form.Item>
         <Form.Item
           label="Tên đăng nhập:"
           name="username"
-          rules={[{ required: true, message: "Please enter an username" }]}
+          rules={[
+            { required: true, message: "Trường này không được để trống" },
+          ]}
         >
           <Input placeholder={`${item.username}`} />
         </Form.Item>
         <Form.Item
           label="Mật khẩu:"
           name="password"
-          rules={[{ required: true, message: "Please enter a password" }]}
+          rules={[
+            { required: true, message: "Trường này không được để trống" },
+          ]}
         >
           <Input placeholder={`${item.password}`} />
         </Form.Item>
@@ -151,7 +157,7 @@ const TeacherDetail: React.FC<TeacherDetailProps> = ({
           label="Danh sách lớp phụ trách:"
           name="classIds"
           rules={[
-            { required: true, message: "Please select at least 1 class" },
+            { required: true, message: "Trường này phải chọn tối thiểu 1" },
           ]}
         >
           <Select

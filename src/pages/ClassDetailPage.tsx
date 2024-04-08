@@ -17,6 +17,7 @@ import { useParams } from "react-router-dom";
 import SharedHeader from "../components/share/SharedHeader";
 import SharedFooter from "../components/share/SharedFooter";
 import { LoginContext } from "../context/LoginContext";
+import { log } from "console";
 
 const { Content } = Layout;
 const { Text } = Typography;
@@ -76,6 +77,10 @@ const ClassDetailPage: React.FC = () => {
   }, [classId, token, keyForRemount]);
 
   const addKid = async () => {
+    if (LoginCtx.user?.role !== "TEACHER") {
+      messageApi.error("Bạn không có quyền thêm trẻ vào lớp");
+      return;
+    }
     if (!newKidId) {
       messageApi.error("Vui lòng chọn trẻ để thêm vào lớp");
       return;
@@ -107,6 +112,10 @@ const ClassDetailPage: React.FC = () => {
   };
 
   const handleKick = async (kidId: string) => {
+    if (LoginCtx.user?.role !== "TEACHER") {
+      messageApi.error("Bạn không có quyền xóa trẻ khỏi lớp");
+      return;
+    }
     const values = {
       kidId: kidId,
       classId: classId,
