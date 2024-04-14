@@ -13,7 +13,6 @@ const CreateKid = ({
 }) => {
   const [parentToAssign, setParentToAssign] = useState<any[]>([]);
   const [classesToAssign, setClassesToAssign] = useState<any[]>([]);
-  const [foodToAssign, setFoodToAssign] = useState<any[]>([]);
   const LoginCtx = useContext(LoginContext);
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -21,7 +20,7 @@ const CreateKid = ({
     const fetchData = async () => {
       try {
         const token = LoginCtx.authToken || localStorage.getItem("authToken");
-        const [classResponse, parentResponse, foodResponse] = await Promise.all(
+        const [classResponse, parentResponse] = await Promise.all(
           [
             fetch(BASE_BACKEND_URL + "/class/all", {
               method: "GET",
@@ -37,25 +36,17 @@ const CreateKid = ({
                 Authorization: `Bearer ${token}`,
               },
             }),
-            fetch(BASE_BACKEND_URL + "/food/all", {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-            }),
           ]
         );
 
-        const [classData, parentData, foodData] = await Promise.all([
+        const [classData, parentData] = await Promise.all([
           classResponse.json(),
           parentResponse.json(),
-          foodResponse.json(),
+
         ]);
 
         setClassesToAssign(classData.data);
         setParentToAssign(parentData.data);
-        setFoodToAssign(foodData.data);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -142,21 +133,6 @@ const CreateKid = ({
             options={parentToAssign.map((parent) => ({
               value: parent.id,
               label: `${parent.fullName}`,
-            }))}
-          />
-        </Form.Item>
-        <Form.Item label="Dị ứng với loại thức ăn:" name="foodIds">
-          <Select
-            showSearch
-            mode="multiple"
-            filterOption={(inputValue, option) =>
-              (option?.label?.toString()?.toLowerCase() || "").includes(
-                inputValue.toLowerCase()
-              )
-            }
-            options={foodToAssign.map((food) => ({
-              value: food.id,
-              label: `${food.name}`,
             }))}
           />
         </Form.Item>

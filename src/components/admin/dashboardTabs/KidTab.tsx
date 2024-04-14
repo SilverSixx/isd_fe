@@ -70,18 +70,6 @@ const KidTab: React.FC = () => {
       key: "gradeBelongsTo",
     },
     {
-      title: "Dị ứng với",
-      dataIndex: "allergyFoods",
-      key: "allergyFoods",
-      render: (allergyFoods: any) => (
-        <>
-          {allergyFoods.map((food: any) => (
-            <span>{food.name + ", "}</span>
-          ))}
-        </>
-      ),
-    },
-    {
       title: "Tên phụ huynh",
       dataIndex: ["parent", "fullName"],
       key: "parent",

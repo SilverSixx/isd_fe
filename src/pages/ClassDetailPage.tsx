@@ -29,7 +29,6 @@ const ClassDetailPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [classData, setClassData] = useState<any>([]);
   const [kidsToAdd, setKidsToAdd] = useState<any[]>([]);
-  const [menuFoodData, setMenuFoodData] = useState<any>([]);
   const [newKidId, setnewKidId] = useState<any>(null);
   const [messageApi, contextHolder] = message.useMessage();
   const LoginCtx = useContext(LoginContext);
@@ -52,14 +51,6 @@ const ClassDetailPage: React.FC = () => {
         );
         const classData = await classResponse.json();
         setClassData(classData.data);
-
-        const foodResponse = await fetch(BASE_BACKEND_URL + `/food/all`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const foodData = await foodResponse.json();
-        setMenuFoodData(foodData.data);
 
         const kidResponse = await fetch(BASE_BACKEND_URL + `/kid/all`, {
           headers: {
@@ -169,18 +160,6 @@ const ClassDetailPage: React.FC = () => {
       render: () => <span>{classData.grade}</span>,
     },
     {
-      title: "Dị ứng với",
-      dataIndex: "allergyFoods",
-      key: "allergyFoods",
-      render: (allergyFoods: any) => (
-        <>
-          {allergyFoods.map((food: any) => (
-            <span>{food.name + ", "}</span>
-          ))}
-        </>
-      ),
-    },
-    {
       title: "Phụ huynh",
       dataIndex: ["parent", "fullName"],
       key: "parent",
@@ -259,7 +238,6 @@ const ClassDetailPage: React.FC = () => {
                   }
                   placeholder="Nhập tên trẻ ở đây..."
                   onChange={(value) => {
-
                     setnewKidId(value);
                   }}
                   options={kidsToAdd.map((kid) => ({
@@ -291,19 +269,6 @@ const ClassDetailPage: React.FC = () => {
                 total: classData?.kids?.length,
               }}
             />
-            <Row gutter={[16, 16]}>
-              <Col span={12}>
-                <Card title="Thực đơn">
-                  <div style={{ display: "flex", flexDirection: "row" }}>
-                    {menuFoodData.map((food: any) => (
-                      <div key={food.id} style={{ marginRight: 20 }}>
-                        <Text>{food.name}</Text>
-                      </div>
-                    ))}
-                  </div>
-                </Card>
-              </Col>
-            </Row>
           </Card>
         </div>
       </Content>

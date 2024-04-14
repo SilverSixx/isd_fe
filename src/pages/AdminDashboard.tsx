@@ -11,7 +11,6 @@ import ClassTab from "../components/admin/dashboardTabs/ClassTab";
 import TeacherTab from "../components/admin/dashboardTabs/TeacherTab";
 import KidTab from "../components/admin/dashboardTabs/KidTab";
 import ParentTab from "../components/admin/dashboardTabs/ParentTab";
-import FoodTab from "../components/admin/dashboardTabs/FoodTab";
 import SharedFooter from "../components/share/SharedFooter";
 import { LoginContext } from "../context/LoginContext";
 import { useNavigate } from "react-router-dom";
@@ -25,7 +24,6 @@ const items: MenuProps["items"] = [
   { key: "2", icon: <TeamOutlined />, label: "Giáo viên" },
   { key: "3", icon: <TeamOutlined />, label: "Trẻ" },
   { key: "4", icon: <TeamOutlined />, label: "Phụ huynh" },
-  { key: "5", icon: <CoffeeOutlined />, label: "Thực đơn" },
 ];
 
 const AdminDashboard: React.FC = () => {
@@ -141,7 +139,6 @@ const AdminDashboard: React.FC = () => {
 
           {activeTab === "4" && <ParentTab />}
 
-          {activeTab === "5" && <FoodTab />}
         </Content>
         <SharedFooter place="admin" />
       </Layout>
