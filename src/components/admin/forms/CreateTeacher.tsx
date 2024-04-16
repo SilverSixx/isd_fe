@@ -71,7 +71,7 @@ const CreateTeacher = ({
 
   return (
     <Modal
-      title="Tạo mới giáo viên"
+      title="Tạo giáo viên mới"
       open={true}
       onCancel={onCancel}
       footer={null}

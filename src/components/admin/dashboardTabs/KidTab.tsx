@@ -133,7 +133,7 @@ const KidTab: React.FC = () => {
             onClick={handleCreateNewKid}
             style={{ marginBottom: "10px" }}
           >
-            Tạo mới trẻ
+            Tạo trẻ mới
           </Button>
           <Table
             dataSource={kidsData.slice(

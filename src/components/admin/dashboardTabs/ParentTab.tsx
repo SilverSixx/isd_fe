@@ -120,7 +120,7 @@ const ParentTab: React.FC = () => {
             onClick={handleCreateNew}
             style={{ marginBottom: "10px" }}
           >
-            Thêm mới phụ huynh
+            Tạo phụ huynh mới
           </Button>
           <Table
             dataSource={parentData.slice(

@@ -42,8 +42,10 @@ const CreateKid = ({
         const [classData, parentData] = await Promise.all([
           classResponse.json(),
           parentResponse.json(),
-
         ]);
+
+        console.log(parentData.data);
+        
 
         setClassesToAssign(classData.data);
         setParentToAssign(parentData.data);
@@ -73,6 +75,8 @@ const CreateKid = ({
         body: JSON.stringify(valuesToSend),
       });
 
+      console.log(response);
+      
       if (response.ok) {
         const data = await response.json();
         if (!data?.error) {
@@ -92,7 +96,7 @@ const CreateKid = ({
   };
 
   return (
-    <Modal title="Thêm mới trẻ" open={true} onCancel={onCancel} footer={null}>
+    <Modal title="Tạo trẻ mới" open={true} onCancel={onCancel} footer={null}>
       {contextHolder}
       <Form form={form} layout="vertical" onFinish={handleOnSubmit}>
         <Form.Item
@@ -132,7 +136,7 @@ const CreateKid = ({
             }
             options={parentToAssign.map((parent) => ({
               value: parent.id,
-              label: `${parent.fullName}`,
+              label: `${parent.fullName} - Tên trẻ: ${parent.kid?.fullName || "Chưa có thông tin"}`,
             }))}
           />
         </Form.Item>

@@ -46,6 +46,9 @@ const CreateParent = ({
         body: JSON.stringify(values),
       });
 
+      console.log(response);
+      
+
       if (response.ok) {
         const data = await response.json();
         if (!data?.error) {
@@ -67,7 +70,7 @@ const CreateParent = ({
 
   return (
     <Modal
-      title="Thêm mới phụ huynh"
+      title="Tạo phụ huynh mới"
       open={true}
       onCancel={onCancel}
       footer={null}
@@ -101,7 +104,7 @@ const CreateParent = ({
         >
           <Input type="password" />
         </Form.Item>
-        <Form.Item label="Trẻ:" name="kidId">
+        <Form.Item label="Trẻ của phụ huynh:" name="kidId">
           <Select
             showSearch
             value={kidToAdd.map((k) => k.id)}

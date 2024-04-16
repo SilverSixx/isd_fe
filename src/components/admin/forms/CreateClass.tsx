@@ -73,15 +73,15 @@ const CreateClass = ({
           message.error(data?.message);
         }
       } else {
-        message.error("Lỗi khi tạo lớp học.");
+        message.error("Lỗi khi tạo lớp học. RESPONSE NOT OK");
       }
     } catch (error) {
-      message.error("Lỗi khi tạo lớp học.");
+      message.error("Lỗi khi tạo lớp học. SERVER ERROR");
     }
   };
 
   return (
-    <Modal title="Tạo lớp học" open={true} onCancel={onCancel} footer={null}>
+    <Modal title="Tạo lớp mới" open={true} onCancel={onCancel} footer={null}>
       {contextHolder}
       <Form form={form} layout="vertical" onFinish={handleOnSubmit}>
         <Form.Item
@@ -94,7 +94,7 @@ const CreateClass = ({
           <Input />
         </Form.Item>
         <Form.Item
-          label="Tuổi:"
+          label="Khối:"
           name="grade"
           rules={[
             { required: true, message: "Trường này không được để trống" },
