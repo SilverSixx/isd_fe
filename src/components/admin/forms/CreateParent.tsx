@@ -46,9 +46,6 @@ const CreateParent = ({
         body: JSON.stringify(values),
       });
 
-      console.log(response);
-      
-
       if (response.ok) {
         const data = await response.json();
         if (!data?.error) {

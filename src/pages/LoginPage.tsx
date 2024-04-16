@@ -28,8 +28,6 @@ const LoginPage: React.FC = () => {
         body: JSON.stringify(values),
       });
 
-      console.log("response", response);
-
       if (response.ok) {
         const res = await response.json();
         const user = {

@@ -74,8 +74,6 @@ const CreateKid = ({
         },
         body: JSON.stringify(valuesToSend),
       });
-
-      console.log(response);
       
       if (response.ok) {
         const data = await response.json();
