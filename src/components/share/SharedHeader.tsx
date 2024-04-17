@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { Layout, Button, message } from "antd";
+import { Layout, Button, message, Image } from "antd";
 import { TeamOutlined, HomeOutlined, LogoutOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
@@ -90,9 +90,17 @@ const SharedHeader: React.FC<SharedHeaderProps> = ({ place }) => {
     >
       {contextHolder}
       <div style={{ display: "flex" }}>
-        <div style={{ color: "white", paddingRight: 50, fontWeight: "bold" }}>
+        {/* <div style={{ color: "white", paddingRight: 50, fontWeight: "bold" }}>
           Logo here
-        </div>
+        </div> */}
+
+        <Image 
+          width={70}
+          src={require("./logo.png")}
+          alt="Logo"
+          preview={false}
+        />
+
         <nav style={{ display: "flex", gap: "20px" }}>
           {items.map((item) => (
             <Link

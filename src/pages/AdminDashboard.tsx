@@ -6,7 +6,7 @@ import {
   CoffeeOutlined,
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
-import { Layout, Menu, theme, Button, message } from "antd";
+import { Layout, Menu, theme, Button, message, Image } from "antd";
 import ClassTab from "../components/admin/dashboardTabs/ClassTab";
 import TeacherTab from "../components/admin/dashboardTabs/TeacherTab";
 import KidTab from "../components/admin/dashboardTabs/KidTab";
@@ -94,7 +94,14 @@ const AdminDashboard: React.FC = () => {
           flexDirection: "column",
         }}
       >
-        <div className="demo-logo-vertical" />
+        <Image
+          width={120}
+          src={require("./logo.png")}
+          alt="Logo"
+          preview={false}
+          style={{marginLeft: 40, cursor: "pointer"}}
+          onClick={() => navigate("/home")}
+        />
         <Menu
           theme="dark"
           mode="inline"
@@ -108,7 +115,7 @@ const AdminDashboard: React.FC = () => {
           type="primary"
           icon={<LogoutOutlined />}
           onClick={handleLogout}
-          style={{ marginLeft: 30, marginTop: 500 }}
+          style={{ marginLeft: 30, marginTop: 300 }}
         >
           Đăng xuất
         </Button>
@@ -138,7 +145,6 @@ const AdminDashboard: React.FC = () => {
           {activeTab === "3" && <KidTab />}
 
           {activeTab === "4" && <ParentTab />}
-
         </Content>
         <SharedFooter place="admin" />
       </Layout>
