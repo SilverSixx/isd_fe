@@ -57,7 +57,7 @@ const CreateParent = ({
           messageApi.error(data?.message);
         }
       } else {
-        messageApi.error("lỗi khi thêm phụ huynh mới.");
+        messageApi.error("Lỗi khi thêm phụ huynh mới.");
       }
     } catch (error) {
       console.log("Lỗi", error);
@@ -77,6 +77,15 @@ const CreateParent = ({
         <Form.Item
           label="Họ và tên:"
           name="fullName"
+          rules={[
+            { required: true, message: "Trường này không được để trống" },
+          ]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          label="Số CCCD:"
+          name="idCardNumber"
           rules={[
             { required: true, message: "Trường này không được để trống" },
           ]}

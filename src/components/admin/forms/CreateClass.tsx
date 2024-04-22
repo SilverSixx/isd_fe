@@ -73,10 +73,10 @@ const CreateClass = ({
           message.error(data?.message);
         }
       } else {
-        message.error("Lỗi khi tạo lớp học. RESPONSE NOT OK");
+        message.error("Lỗi khi tạo lớp học. Kiểm tra lại thông tin.");
       }
     } catch (error) {
-      message.error("Lỗi khi tạo lớp học. SERVER ERROR");
+      message.error("Lỗi khi tạo lớp học. Vui lòng thử lại.");
     }
   };
 
@@ -130,13 +130,7 @@ const CreateClass = ({
             ))}
           </Select>
         </Form.Item>
-        <Form.Item
-          label="Trẻ trong lớp này:"
-          name="kidIds"
-          rules={[
-            { required: true, message: "Trường này phải chọn tối thiểu 1" },
-          ]}
-        >
+        <Form.Item label="Trẻ trong lớp này:" name="kidIds">
           <Select
             showSearch
             mode="multiple"

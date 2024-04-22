@@ -47,6 +47,11 @@ const ParentTab: React.FC = () => {
       key: "username",
     },
     {
+      title: "Số CCCD",
+      dataIndex: "idCardNumber",
+      key: "idCardNumber",
+    },
+    {
       title: "Tên trẻ",
       dataIndex: ["kid", "fullName"],
       key: "kidName",

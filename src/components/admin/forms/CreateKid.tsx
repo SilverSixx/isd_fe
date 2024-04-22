@@ -63,6 +63,19 @@ const CreateKid = ({
     try {
       const values = await form.validateFields();
       const dob = values.dob.format("YYYY-MM-DD");
+
+      // check the dob value if the age is less than 2 years old
+      const today = new Date();
+      const dobDate = new Date(dob);
+      const diffTime = Math.abs(today.getTime() - dobDate.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      const diffYears = diffDays / 365;
+
+      if (diffYears < 2) {
+        message.error("Trẻ phải từ 2 tuổi trở lên.");
+        return;
+      }
+
       const valuesToSend = { ...values, dob };
 
       const token = LoginCtx.authToken || localStorage.getItem("authToken");
@@ -122,23 +135,44 @@ const CreateKid = ({
             { required: true, message: "Trường này không được để trống" },
           ]}
         >
-          <DatePicker format="YYYY-MM-DD" />
+          <DatePicker format="YYYY-MM-DD" placeholder="Chọn ngày" />
         </Form.Item>
-        <Form.Item label="Tên phụ huynh:" name="parentId">
+        <Form.Item
+          label="Tên phụ huynh:"
+          name="parentId"
+          rules={[
+            { required: true, message: "Trường này không được để trống" },
+          ]}
+        >
           <Select
             showSearch
-            filterOption={(inputValue, option) =>
-              (option?.label?.toString()?.toLowerCase() || "").includes(
-                inputValue.toLowerCase()
-              )
-            }
+            filterOption={(inputValue, option) =>{
+              const parentLabel =
+                option?.label?.toString()?.toLowerCase() || "";
+              const idCardNumber =
+                option?.idCardNumber?.toString()?.toLowerCase() || "";
+              const searchValue = inputValue.toLowerCase();
+              return (
+                parentLabel.includes(searchValue) ||
+                idCardNumber.includes(searchValue)
+              );
+            }}
             options={parentToAssign.map((parent) => ({
               value: parent.id,
-              label: `${parent.fullName} - Tên trẻ: ${parent.kid?.fullName || "Chưa có thông tin"}`,
+              label: `${parent.fullName} - Tên trẻ: ${
+                parent.kid?.fullName || "Chưa có thông tin"
+              }`,
+              idCardNumber: parent.idCardNumber,
             }))}
           />
         </Form.Item>
-        <Form.Item label="Lớp học" name="classId">
+        <Form.Item
+          label="Lớp học"
+          name="classId"
+          rules={[
+            { required: true, message: "Trường này không được để trống" },
+          ]}
+        >
           <Select
             showSearch
             filterOption={(inputValue, option) =>
