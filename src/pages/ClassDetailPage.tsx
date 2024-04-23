@@ -160,6 +160,10 @@ const ClassDetailPage: React.FC = () => {
     };
 
     const handleOnChangeClass = async () => {
+        if (LoginCtx.user?.role !== "TEACHER") {
+            messageApi.error("Bạn không có quyền chuyển trẻ sang lớp khác");
+            return;
+        }
         const classId = form.getFieldValue("classId");
         try {
             const response = await fetch(
@@ -345,7 +349,7 @@ const ClassDetailPage: React.FC = () => {
                     </Card>
                 </div>
                 <Modal
-                    title="Tên tên lớp"
+                    title="Tên lớp"
                     visible={isModalOpen}
                     onOk={() => setIsModalOpen(false)}
                     onCancel={() => setIsModalOpen(false)}

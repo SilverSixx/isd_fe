@@ -96,7 +96,7 @@ const KidDetail: React.FC<KidDetailProps> = ({
         messageApi.error(res?.message);
       }
     } catch (error) {
-      messageApi.error("Error updating kid");
+      messageApi.error("Lỗi khi cập nhật thông tin trẻ");
     }
   };
 
@@ -123,7 +123,7 @@ const KidDetail: React.FC<KidDetailProps> = ({
         messageApi.error(res?.message);
       }
     } catch (error) {
-      messageApi.error("Error deleting kid");
+      messageApi.error("Lỗi khi xóa trẻ");
     }
   };
 
