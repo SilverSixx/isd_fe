@@ -21,6 +21,7 @@ const LoginPage: React.FC = () => {
   const onFinish = async (values: any) => {
     try {
       const response = await fetch(BASE_BACKEND_URL + "/auth/login", {
+        mode: "no-cors",
         method: "POST",
         headers: {
           "Content-Type": "application/json",
