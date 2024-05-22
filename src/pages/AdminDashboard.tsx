@@ -17,7 +17,7 @@ import { useNavigate } from "react-router-dom";
 
 
 const { Header, Content, Footer, Sider } = Layout;
-const BASE_BACKEND_URL = "http://localhost:8080/api/v1";
+const BASE_BACKEND_URL = "https://isd-be.vercel.app/api/v1";
 
 const items: MenuProps["items"] = [
   { key: "1", icon: <HomeOutlined />, label: "Lớp học" },

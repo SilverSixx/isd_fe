@@ -23,7 +23,7 @@ import { log } from "console";
 const { Content } = Layout;
 const { Text } = Typography;
 
-const BASE_BACKEND_URL = "http://localhost:8080/api/v1";
+const BASE_BACKEND_URL = "https://isd-be.vercel.app/api/v1";
 const ITEMS_PER_PAGE = 4;
 
 const ClassDetailPage: React.FC = () => {

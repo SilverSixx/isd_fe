@@ -2,7 +2,7 @@ import React, { useEffect, useContext } from "react";
 import { Button, Form, Input, Select, message } from "antd";
 import { LoginContext } from "../../../../context/LoginContext";
 
-const BASE_BACKEND_URL = "http://localhost:8080/api/v1";
+const BASE_BACKEND_URL = "https://isd-be.vercel.app/api/v1";
 
 interface TeacherDetailProps {
     item: {

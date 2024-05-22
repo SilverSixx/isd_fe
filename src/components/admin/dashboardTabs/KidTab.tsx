@@ -4,7 +4,7 @@ import KidDetail from "./details/KidDetail";
 import CreateKid from "../forms/CreateKid";
 import { LoginContext } from "../../../context/LoginContext";
 
-const BASE_BACKEND_URL = "http://localhost:8080/api/v1";
+const BASE_BACKEND_URL = "https://isd-be.vercel.app/api/v1";
 const ITEMS_PER_PAGE = 7;
 
 const KidTab: React.FC = () => {

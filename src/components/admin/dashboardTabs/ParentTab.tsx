@@ -3,7 +3,7 @@ import { Button, Table, message } from "antd";
 import { LoginContext } from "../../../context/LoginContext";
 import CreateParent from "../forms/CreateParent";
 
-const BASE_BACKEND_URL = "http://localhost:8080/api/v1";
+const BASE_BACKEND_URL = "https://isd-be.vercel.app/api/v1";
 const ITEMS_PER_PAGE = 7;
 
 const ParentTab: React.FC = () => {
